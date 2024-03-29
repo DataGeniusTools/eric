@@ -4,7 +4,7 @@ import { Layout } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
 
-import logo from './logo.svg'; // Stellen Sie sicher, dass das Logo importiert wird
+import logo from './logo.png'; // Stellen Sie sicher, dass das Logo importiert wird
 
 const { Header, Content } = Layout;
 
@@ -12,6 +12,7 @@ const App = () => {
 	const editorOptions = {
 		wordWrap: 'on',
 		tabSize: 2, // Setzt die Tabulatorengröße auf 2 (oder eine andere gewünschte Größe)
+		minimap: { enabled: false },
 	};
 
 	const defaultValue = `
@@ -38,7 +39,7 @@ const App = () => {
 				<div style={{ marginRight: '24px' }}>
 					<img src={logo} alt="Logo" style={{ height: '32px' }} />
 				</div>
-				<h1 style={{ color: '#fff', margin: 0 }}>Mein App-Titel</h1>
+				<h1 style={{ color: '#fff', margin: 0 }}>ERic</h1>
 			</Header>
 			<Content style={{ padding: '24px' }}>
 				<div style={{ display: 'flex', gap: '24px' }}>
