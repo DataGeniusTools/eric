@@ -4,14 +4,14 @@ import { Layout } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
 import grammar from './dsl.jison';
-import logo from './logo.png'; // Stellen Sie sicher, dass das Logo importiert wird
+import logo from './logo.png';
 
 const { Header, Content } = Layout;
 
 const App = () => {
 	const editorOptions = {
 		wordWrap: 'on',
-		tabSize: 2, // Setzt die Tabulatorengröße auf 2 (oder eine andere gewünschte Größe)
+		tabSize: 2,
 		minimap: { enabled: false },
 	};
 
@@ -49,7 +49,7 @@ const App = () => {
 							height="600px"
 							defaultLanguage="text"
 							defaultValue={defaultValue}
-							options={editorOptions} // Übergeben Sie die Editor-Optionen
+							options={editorOptions}
 						/>
 					</div>
 					{/* React Flow */}
