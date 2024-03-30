@@ -1,3 +1,4 @@
+module.exports = `
 /* Lexikalische Regeln */
 %lex
 %%
@@ -79,4 +80,4 @@ ref_target
   | IDENTIFIER '.' IDENTIFIER
   ;
 
-%%
+%%`;

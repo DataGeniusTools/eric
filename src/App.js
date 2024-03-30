@@ -3,7 +3,7 @@ import React from 'react';
 import { Layout } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
-
+import grammar from './dsl.jison';
 import logo from './logo.png'; // Stellen Sie sicher, dass das Logo importiert wird
 
 const { Header, Content } = Layout;
