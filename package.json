@@ -10,6 +10,7 @@
     "antd": "^5.15.4",
     "antlr4": "^4.13.1-patch-1",
     "jison": "^0.4.18",
+    "ohm-js": "^17.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-flow-renderer": "^10.3.17",
