@@ -39,13 +39,13 @@ const App = () => {
 				return e.eval();
 			},
 			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
-				return entity1.eval() + "." + attribute1.eval + ">" + entity2.eval() + "." + attribute2.eval();
+				return entity1.eval() + "." + attribute1.eval() + " > " + entity2.eval() + "." + attribute2.eval();
 			},
 			Refelement_tableRef(entity1, greater, entity2) {
-				return entity1.eval() + ">" + entity2.eval();
+				return entity1.eval() + " > " + entity2.eval();
 			},
 			Attributes(open, e, close) {
-				return "{ " + e.eval() + " }";
+				return " { " + e.eval() + " }";
 			},
 			Attribute(e, type, pk) {
 				return e.eval() + " " + type.eval();
