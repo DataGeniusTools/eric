@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Layout, Space, Input } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
@@ -11,22 +11,7 @@ import 'split-pane-react/esm/themes/default.css';
 const { Header, Content } = Layout;
 
 const App = () => {
-	const defaultCode = `Entity Sales as S {
-	sold_date date
-	product_id int
-	amount int
-}
-
-Entity Product as P {
-	id int [pk]
-	name string
-	Product string
-}
-
-Entity Region as R
-
-Ref Sales > Region`;
-	const [code, setCode] = useState(defaultCode);
+	const [code, setCode] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
 	const editorOptions = {
@@ -34,20 +19,53 @@ Ref Sales > Region`;
 		tabSize: 2,
 		minimap: { enabled: false },
 	};
-	useEffect(() => {
-		const result = ohm.grammar(grammar).match(defaultCode);
-		if (result.succeeded()) {
-			setMatchResult("No errors found");
-		} else {
-			setMatchResult(result.shortMessage);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Leeres Abhängigkeitsarray mit eslint-ignore-Kommentar
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
-		const result = ohm.grammar(grammar).match(newCode);
+		const g = ohm.grammar(grammar);
+		const semantics = g.createSemantics().addOperation('eval', {
+			Statements(e) {
+				return e.eval();
+			},
+			Statement(e) {
+				return e.eval();
+			},
+			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
+				return "Entity " + ident.eval() + attributes.eval();
+			},
+			Statement_refDeclaration(ref, refelement) {
+				return "Ref " + refelement.eval();
+			},
+			Refelement(e) {
+				return e.eval();
+			},
+			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+				return entity1.eval() + "." + attribute1.eval + ">" + entity2.eval() + "." + attribute2.eval();
+			},
+			Refelement_tableRef(entity1, greater, entity2) {
+				return entity1.eval() + ">" + entity2.eval();
+			},
+			Attributes(open, e, close) {
+				return "{ " + e.eval() + " }";
+			},
+			Attribute(e, type, pk) {
+				return e.eval() + " " + type.eval();
+			},
+			datatype(e) {
+				return e.eval();
+			},
+			ident(letter, alnum) {
+				return this.sourceString;
+			},
+			_iter(...children) {
+				return children.map(c => c.eval());
+			},
+			_terminal() {
+				return this.sourceString;
+			},
+		});
+		const result = g.match(newCode);
 		if (result.succeeded())
-			setMatchResult("No errors found");
+			setMatchResult(semantics(result).eval());
 		else
 			setMatchResult(result.shortMessage);
 	};
@@ -71,7 +89,6 @@ Ref Sales > Region`;
 						<MonacoEditor
 							height="88%"
 							defaultLanguage="text"
-							defaultValue={defaultCode}
 							value={code}
 							options={editorOptions}
 							onChange={handleEditorChange}
