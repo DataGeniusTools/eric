@@ -3,6 +3,7 @@ import { Layout, Space, Input } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
 import * as ohm from 'ohm-js';
+import { toAST } from 'ohm-js/extras';
 import grammar from './Ohm.js';
 import logo from './logo.png';
 import SplitPane, { Pane } from 'split-pane-react';
@@ -70,10 +71,13 @@ const App = () => {
 			},
 		});
 		const result = g.match(newCode);
-		if (result.succeeded())
+		if (result.succeeded()) {
 			setMatchResult(semantics(result).eval());
-		else
+			const ast = toAST(result);
+			console.log(ast);
+		} else {
 			setMatchResult(result.shortMessage);
+		}
 	};
 
 	return (
