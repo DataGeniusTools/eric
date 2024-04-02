@@ -30,7 +30,10 @@ const App = () => {
 				return e.eval();
 			},
 			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
-				return "Entity " + ident.eval() + attributes.eval();
+				if (as.numChildren > 0)
+					return "Entity " + ident.eval() + " as " + ident2.eval() + attributes.eval();
+				else
+					return "Entity " + ident.eval() + attributes.eval();
 			},
 			Statement_refDeclaration(ref, refelement) {
 				return "Ref " + refelement.eval();
@@ -48,7 +51,10 @@ const App = () => {
 				return " { " + e.eval() + " }";
 			},
 			Attribute(e, type, pk) {
-				return e.eval() + " " + type.eval();
+				if (pk.numChildren > 0)
+					return e.eval() + " " + type.eval() + " [pk]";
+				else
+					return e.eval() + " " + type.eval();
 			},
 			datatype(e) {
 				return e.eval();
