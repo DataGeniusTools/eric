@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Layout, Space, Input } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
-import ReactFlow, { MiniMap } from 'react-flow-renderer';
+import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import grammar from './Ohm.js';
-import logo from './logo.png';
+import React, { useState } from 'react';
+import ReactFlow, { MiniMap } from 'react-flow-renderer';
 import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
+import grammar from './Ohm.js';
+import logo from './logo.png';
 
 const { Header, Content } = Layout;
 
@@ -31,7 +31,7 @@ const App = () => {
 			},
 			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
 				if (as.numChildren > 0)
-					return "Entity " + ident.eval() + " as " + ident2.eval() + attributes.eval();
+					return "Entity " + ident.eval() + " ↣ " + ident2.eval() + attributes.eval();
 				else
 					return "Entity " + ident.eval() + attributes.eval();
 			},
@@ -42,17 +42,17 @@ const App = () => {
 				return e.eval();
 			},
 			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
-				return entity1.eval() + "." + attribute1.eval() + " > " + entity2.eval() + "." + attribute2.eval();
+				return entity1.eval() + "." + attribute1.eval() + " → " + entity2.eval() + "." + attribute2.eval();
 			},
 			Refelement_tableRef(entity1, greater, entity2) {
-				return entity1.eval() + " > " + entity2.eval();
+				return entity1.eval() + " → " + entity2.eval();
 			},
 			Attributes(open, e, close) {
 				return " { " + e.eval() + " }";
 			},
 			Attribute(e, type, pk) {
 				if (pk.numChildren > 0)
-					return e.eval() + " " + type.eval() + " [pk]";
+					return e.eval() + "🔑 " + type.eval();
 				else
 					return e.eval() + " " + type.eval();
 			},
