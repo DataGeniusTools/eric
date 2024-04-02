@@ -3,10 +3,11 @@ import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
 import React, { useState } from 'react';
 import ReactFlow, { MiniMap } from 'react-flow-renderer';
-import SplitPane, { Pane } from 'split-pane-react';
-import 'split-pane-react/esm/themes/default.css';
+import { toAST } from 'ohm-js/extras';
 import grammar from './Ohm.js';
 import logo from './logo.png';
+import SplitPane, { Pane } from 'split-pane-react';
+import 'split-pane-react/esm/themes/default.css';
 
 const { Header, Content } = Layout;
 
@@ -70,10 +71,13 @@ const App = () => {
 			},
 		});
 		const result = g.match(newCode);
-		if (result.succeeded())
+		if (result.succeeded()) {
 			setMatchResult(semantics(result).eval());
-		else
+			const ast = toAST(result);
+			console.log(ast);
+		} else {
 			setMatchResult(result.shortMessage);
+		}
 	};
 
 	return (
