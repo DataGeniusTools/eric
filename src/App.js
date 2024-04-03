@@ -23,6 +23,9 @@ const App = () => {
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
+		
+		/* semantic for eval */
+
 		const semantics = g.createSemantics().addOperation('eval', {
 			Statements(e) {
 				return e.eval();
@@ -70,11 +73,119 @@ const App = () => {
 				return this.sourceString;
 			},
 		});
+
+		/* semantic for nodes */
+		
+		const semanticsNodes = g.createSemantics().addOperation('nodes', {
+			Statements(e) {
+				return {
+					nodes: e.nodes().filter(n => n) // remove empty array elements
+				}
+			},
+			Statement(e) {
+				if(e.ctorName == 'Statement_entityDeclaration') {
+					return e.nodes();
+				}
+			},
+			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
+				if (as.numChildren > 0)
+					return  {
+						name: ident.nodes(),
+						alias: ident2.nodes()[0],
+						attributes: attributes.nodes()[0],
+						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
+					}
+				else
+					return  {
+						name: ident.nodes(),
+						attributes: attributes.nodes()[0],
+						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
+					}
+			},
+			Attributes(open, e, close) {
+				return e.nodes()
+			},
+			Attribute(e, type, pk) {
+					return  {
+						name: e.nodes(),
+						datatype: type.nodes()[0],
+						isPrimaryKey: pk.numChildren > 0 ? 'Y' : 'N'
+					}
+			},
+			datatype(e) {
+				return e.nodes();
+			},
+			ident(letter, alnum) {
+				return this.sourceString;
+			},
+			_iter(...children) {
+				return children.map(c => c.nodes());
+			},
+			_terminal() {
+				return this.sourceString;
+			},
+		});
+
+		/* semantic for edges */
+
+		const semanticsEdges = g.createSemantics().addOperation('edges', {
+			Statements(e) {
+				return {
+					edges: e.edges().filter(n => n) // remove empty array elements
+				}
+			},
+			Statement(e) {
+				if(e.ctorName == 'Statement_refDeclaration') {
+					return e.edges();
+				}
+			},
+			Statement_refDeclaration(ref, refelement) {
+				return refelement.edges();
+			},
+			Refelement(e) {
+				return e.edges();
+			},
+			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+				return {
+					from: entity1.edges(),
+					fromAttribute: attribute1.edges(),
+					to: entity2.edges(),
+					toAttribute: attribute2.edges(),
+					type: 'AttributeRef'
+					//direction: greater
+				}
+			},
+			Refelement_tableRef(entity1, greater, entity2) {
+				return {
+					from: entity1.edges(),
+					to: entity2.edges(),
+					type: 'EntityRef'
+					//direction: greater
+				}
+			},
+			datatype(e) {
+				return e.edges();
+			},
+			ident(letter, alnum) {
+				return this.sourceString;
+			},
+			_iter(...children) {
+				return children.map(c => c.edges());
+			},
+			_terminal() {
+				return this.sourceString;
+			},
+		});
+
 		const result = g.match(newCode);
 		if (result.succeeded()) {
 			setMatchResult(semantics(result).eval());
-			const ast = toAST(result);
-			console.log(ast);
+			//const ast = toAST(result);
+			//console.log(ast);
+			console.log("nodes");
+			console.log(semanticsNodes(result).nodes());
+			console.log("edges");
+			console.log(semanticsEdges(result).edges());
 		} else {
 			setMatchResult(result.shortMessage);
 		}
