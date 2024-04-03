@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import ReactFlow, { applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType } from 'react-flow-renderer';
+import ReactFlow, { applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, Background } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -283,8 +283,9 @@ const App = () => {
 							onEdgesChange={onEdgesChange}
 							fitView
 							nodeTypes={{ custom: CustomNode }}
-							style={{ height: '100%', border: '1px solid #e5e5e5' }}
+							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff' }}
 						>
+							<Controls position="bottom-right" />
 							<MiniMap />
 						</ReactFlow>
 					</Pane>
