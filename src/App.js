@@ -2,10 +2,8 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-//import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'reactflow';
 import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
-//import ReactFlow, { MiniMap } from 'react-flow-renderer';
 import { toAST } from 'ohm-js/extras';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -219,8 +217,8 @@ const App = () => {
 			console.log("flowNodes");
 			console.log(flowNodes);
 			setNodes(flowNodes); 
-			// todo: keep position if nodes already exists
-			// todo: custom nodes if attributes exist
+			// todo: keep position if nodes already exist
+			// todo: custom nodes if entity has attributes 
 
 			const flowEdges = 
 				edges.edges.map((edge, i) => {
