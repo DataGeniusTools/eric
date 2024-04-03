@@ -5,7 +5,7 @@ const CustomNode = ({ data }) => {
   return (
     <div className="custom-node" style={{ border: '1px solid #ccc', borderRadius: '4px', padding: '2px', width: '100px', height: '60px', background: '#cccccc' }}>
       <Handle type="target" position="top" style={{ background: '#555' }} />
-      <div className="title" style={{ backgroundColor: data.color }}>
+      <div className="title" style={{ backgroundColor: data.color, textAlign: 'center', marginBottom: '0px' }}>
         {data.title}
       </div>
       <div className="content" style={{ overflowY: 'auto' }}>
