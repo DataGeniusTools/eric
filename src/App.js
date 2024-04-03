@@ -210,7 +210,7 @@ const App = () => {
 					return {
 						id: node.alias ? node.alias : node.name,
 						type: 'custom',
-						data: { title: node.alias ? node.alias : node.name, color: '#6FB1FC', text: node.attributes ? node.attributes[0] ? node.attributes[0].name : '' : '' },
+						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
 						position: { x: 0, y: i * 100 }
 					}
 				})

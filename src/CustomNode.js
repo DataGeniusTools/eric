@@ -8,11 +8,14 @@ const CustomNode = ({ data }) => {
       <div className="title" style={{ fontWeight: '600', backgroundColor: '#eee', textAlign: 'left', marginBottom: '0px', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
         {data.title}
       </div>
-      <div className="content" style={{ overflowY: 'auto', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
-        {data.text.split('\n').map((line, index) => (
-          <span key={index}>{line}</span>
-        ))}
-      </div>
+      { data.attributes ? (
+        <div className="content" style={{ overflowY: 'auto', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
+          {data.attributes.map((attribute, index) => (
+            <div key={index}>{attribute.name}</div>
+          ))}
+        </div>
+        ) : ''
+        }
       <Handle type="source" position="bottom" style={{ background: '#555' }} />
     </div>
   );
