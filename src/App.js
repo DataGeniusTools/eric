@@ -2,17 +2,21 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import ReactFlow, { applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls } from 'react-flow-renderer';
+import ReactFlow, { addEdge, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ConnectionMode } from 'react-flow-renderer'; // 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
 import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
+import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
 
 const { Header, Content } = Layout;
 const nodeTypes = {
 	custom: CustomNode,
+};
+const edgeTypes = {
+  floating: SimpleFloatingEdge,
 };
 
 const App = () => {
@@ -35,6 +39,15 @@ const App = () => {
 		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
 		[],
 	);
+	/*
+	const onConnect = useCallback(
+		(params) =>
+		  setEdges((eds) =>
+			addEdge({ ...params, type: 'floating', markerEnd: { type: MarkerType.Arrow } }, eds)
+		  ),
+		[]
+	  );
+	  */
 
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
@@ -231,6 +244,7 @@ const App = () => {
 							type: MarkerType.Arrow,
 						},
 						label: edge.name,
+						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
 					}
 				})
@@ -284,8 +298,11 @@ const App = () => {
 							onNodesChange={onNodesChange}
 							edges={edges}
 							onEdgesChange={onEdgesChange}
+							//onConnect={onConnect}
 							fitView
 							nodeTypes={nodeTypes}
+							edgeTypes={edgeTypes}
+							connectionMode={ConnectionMode.Loose}
 							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff' }}
 						>
 							<Controls position="bottom-right" />
