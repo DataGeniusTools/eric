@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'react-flow-renderer';
+import ReactFlow, { applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -24,18 +24,18 @@ const App = () => {
 	const [nodes, setNodes] = useState();
 	const [edges, setEdges] = useState();
 	const onNodesChange = useCallback(
-	  (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-	  [],
+		(changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+		[],
 	);
 	const onEdgesChange = useCallback(
-	  (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-	  [],
+		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+		[],
 	);
-	
+
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
-		
+
 		/* semantic for toString */
 
 		const semantics = g.createSemantics().addOperation('toString', {
@@ -57,10 +57,10 @@ const App = () => {
 			Refelement(e) {
 				return e.toString();
 			},
-			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+			Refelement_attributeRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
 				return entity1.toString() + "." + attribute1.toString() + " → " + entity2.toString() + "." + attribute2.toString();
 			},
-			Refelement_tableRef(entity1, greater, entity2) {
+			Refelement_entityRef(entity1, greater, entity2) {
 				return entity1.toString() + " → " + entity2.toString();
 			},
 			Attributes(open, e, close) {
@@ -87,7 +87,7 @@ const App = () => {
 		});
 
 		/* semantic for nodes */
-		
+
 		const semanticsNodes = g.createSemantics().addOperation('nodes', {
 			Statements(e) {
 				return {
@@ -95,20 +95,20 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if(e.ctorName === 'Statement_entityDeclaration') {
+				if (e.ctorName === 'Statement_entityDeclaration') {
 					return e.nodes();
 				}
 			},
 			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
 				if (as.numChildren > 0)
-					return  {
+					return {
 						name: ident.nodes(),
 						alias: ident2.nodes()[0],
 						attributes: attributes.nodes()[0],
 						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
 					}
 				else
-					return  {
+					return {
 						name: ident.nodes(),
 						attributes: attributes.nodes()[0],
 						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
@@ -118,11 +118,11 @@ const App = () => {
 				return e.nodes()
 			},
 			Attribute(e, type, pk) {
-					return  {
-						name: e.nodes(),
-						datatype: type.nodes()[0],
-						isPrimaryKey: pk.numChildren > 0 ? 'Y' : 'N'
-					}
+				return {
+					name: e.nodes(),
+					datatype: type.nodes()[0],
+					isPrimaryKey: pk.numChildren > 0 ? 'Y' : 'N'
+				}
 			},
 			datatype(e) {
 				return e.nodes();
@@ -147,7 +147,7 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if(e.ctorName === 'Statement_refDeclaration') {
+				if (e.ctorName === 'Statement_refDeclaration') {
 					return e.edges();
 				}
 			},
@@ -157,7 +157,7 @@ const App = () => {
 			Refelement(e) {
 				return e.edges();
 			},
-			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+			Refelement_attributeRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
 				return {
 					from: entity1.edges(),
 					fromAttribute: attribute1.edges(),
@@ -167,7 +167,7 @@ const App = () => {
 					//direction: greater
 				}
 			},
-			Refelement_tableRef(entity1, greater, entity2) {
+			Refelement_entityRef(entity1, greater, entity2) {
 				return {
 					from: entity1.edges(),
 					to: entity2.edges(),
@@ -191,7 +191,7 @@ const App = () => {
 
 		const result = g.match(newCode);
 		if (result.succeeded()) {
-			
+
 			setMatchResult(semantics(result).toString());
 
 			console.log("nodes");
@@ -201,32 +201,35 @@ const App = () => {
 			const edges = semanticsEdges(result).edges();
 			console.log(edges);
 
-			const flowNodes = 
+			const flowNodes =
 				nodes.nodes.map((node, i) => {
 					return {
 						id: node.alias ? node.alias : node.name,
-						data: { label: node.name},
-						position: {x: 0, y: i*100}
+						data: { label: node.name },
+						position: { x: 0, y: i * 100 }
 					}
 				})
-			;
+				;
 			console.log("flowNodes");
 			console.log(flowNodes);
-			setNodes(flowNodes); 
+			setNodes(flowNodes);
 			// todo: keep position if nodes already exist
 			// todo: custom nodes if entity has attributes 
 
-			const flowEdges = 
+			const flowEdges =
 				edges.edges.map((edge, i) => {
 					return {
 						id: edge.from + "-" + edge.to,
 						source: edge.from, // todo: attribute ref /// alias vs. name
 						target: edge.to, // todo: attribute ref /// alias vs. name
+						markerEnd: {
+							type: MarkerType.Arrow,
+						},
 						label: edge.name,
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
 					}
 				})
-			;
+				;
 			console.log("flowEdges");
 			console.log(flowEdges);
 			setEdges(flowEdges);
@@ -271,7 +274,7 @@ const App = () => {
 					</Pane>
 					<Pane>
 						{/* React Flow */}
-						<ReactFlow 
+						<ReactFlow
 							nodes={nodes}
 							onNodesChange={onNodesChange}
 							edges={edges}
