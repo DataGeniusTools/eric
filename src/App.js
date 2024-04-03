@@ -1,8 +1,11 @@
+import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import React, { useState } from 'react';
-import ReactFlow, { MiniMap } from 'react-flow-renderer';
+//import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'reactflow';
+import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'react-flow-renderer';
+import 'reactflow/dist/style.css';
+//import ReactFlow, { MiniMap } from 'react-flow-renderer';
 import { toAST } from 'ohm-js/extras';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -20,6 +23,18 @@ const App = () => {
 		tabSize: 2,
 		minimap: { enabled: false },
 	};
+
+	const [nodes, setNodes] = useState();
+	const [edges, setEdges] = useState();
+	const onNodesChange = useCallback(
+	  (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+	  [],
+	);
+	const onEdgesChange = useCallback(
+	  (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+	  [],
+	);
+	
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
@@ -179,13 +194,49 @@ const App = () => {
 
 		const result = g.match(newCode);
 		if (result.succeeded()) {
+			
 			setMatchResult(semantics(result).eval());
+
 			//const ast = toAST(result);
 			//console.log(ast);
+
 			console.log("nodes");
-			console.log(semanticsNodes(result).nodes());
+			const nodes = semanticsNodes(result).nodes();
+			console.log(nodes);
 			console.log("edges");
-			console.log(semanticsEdges(result).edges());
+			const edges = semanticsEdges(result).edges();
+			console.log(edges);
+
+			const flowNodes = 
+				nodes.nodes.map((node, i) => {
+					return {
+						id: node.alias ? node.alias : node.name,
+						data: { label: node.name},
+						position: {x: 0, y: i*100}
+					}
+				})
+			;
+			console.log("flowNodes");
+			console.log(flowNodes);
+			setNodes(flowNodes); 
+			// todo: keep position if nodes already exists
+			// todo: custom nodes if attributes exist
+
+			const flowEdges = 
+				edges.edges.map((edge, i) => {
+					return {
+						id: edge.from + "-" + edge.to,
+						source: edge.from, // todo: attribute ref /// alias vs. name
+						target: edge.to, // todo: attribute ref /// alias vs. name
+						label: edge.name,
+						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
+					}
+				})
+			;
+			console.log("flowEdges");
+			console.log(flowEdges);
+			setEdges(flowEdges);
+
 		} else {
 			setMatchResult(result.shortMessage);
 		}
@@ -226,7 +277,15 @@ const App = () => {
 					</Pane>
 					<Pane>
 						{/* React Flow */}
-						<ReactFlow elements={[]} style={{ height: '100%', border: '1px solid #e5e5e5' }}>
+						<ReactFlow 
+							nodes={nodes}
+							onNodesChange={onNodesChange}
+							edges={edges}
+							onEdgesChange={onEdgesChange}
+							fitView
+							//elements={[]} 
+							style={{ height: '100%', border: '1px solid #e5e5e5' }}
+						>
 							<MiniMap />
 						</ReactFlow>
 					</Pane>
