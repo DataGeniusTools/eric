@@ -207,7 +207,7 @@ const App = () => {
 					return {
 						id: node.alias ? node.alias : node.name,
 						type: 'custom',
-						data: { title: node.alias ? node.alias : node.name, color: '#6FB1FC', text: node.attributes[0] ? node.attributes[0].name : '' },
+						data: { title: node.alias ? node.alias : node.name, color: '#6FB1FC', text: node.attributes ? node.attributes[0] ? node.attributes[0].name : '' : '' },
 						position: { x: 0, y: i * 100 }
 					}
 				})
