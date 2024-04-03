@@ -4,7 +4,6 @@ import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
 import ReactFlow, {	applyNodeChanges, applyEdgeChanges, MiniMap } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
-import { toAST } from 'ohm-js/extras';
 import grammar from './Ohm.js';
 import logo from './logo.png';
 import SplitPane, { Pane } from 'split-pane-react';
@@ -37,50 +36,50 @@ const App = () => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
 		
-		/* semantic for eval */
+		/* semantic for toString */
 
-		const semantics = g.createSemantics().addOperation('eval', {
+		const semantics = g.createSemantics().addOperation('toString', {
 			Statements(e) {
-				return e.eval();
+				return e.toString();
 			},
 			Statement(e) {
-				return e.eval();
+				return e.toString();
 			},
 			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
 				if (as.numChildren > 0)
-					return "Entity " + ident.eval() + " ↣ " + ident2.eval() + attributes.eval();
+					return "Entity " + ident.toString() + " ↣ " + ident2.toString() + attributes.toString();
 				else
-					return "Entity " + ident.eval() + attributes.eval();
+					return "Entity " + ident.toString() + attributes.toString();
 			},
 			Statement_refDeclaration(ref, refelement) {
-				return "Ref " + refelement.eval();
+				return "Ref " + refelement.toString();
 			},
 			Refelement(e) {
-				return e.eval();
+				return e.toString();
 			},
 			Refelement_rowRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
-				return entity1.eval() + "." + attribute1.eval() + " → " + entity2.eval() + "." + attribute2.eval();
+				return entity1.toString() + "." + attribute1.toString() + " → " + entity2.toString() + "." + attribute2.toString();
 			},
 			Refelement_tableRef(entity1, greater, entity2) {
-				return entity1.eval() + " → " + entity2.eval();
+				return entity1.toString() + " → " + entity2.toString();
 			},
 			Attributes(open, e, close) {
-				return " { " + e.eval() + " }";
+				return " { " + e.toString() + " }";
 			},
 			Attribute(e, type, pk) {
 				if (pk.numChildren > 0)
-					return e.eval() + "🔑 " + type.eval();
+					return e.toString() + "🔑 " + type.toString();
 				else
-					return e.eval() + " " + type.eval();
+					return e.toString() + " " + type.toString();
 			},
 			datatype(e) {
-				return e.eval();
+				return e.toString();
 			},
 			ident(letter, alnum) {
 				return this.sourceString;
 			},
 			_iter(...children) {
-				return children.map(c => c.eval());
+				return children.map(c => c.toString());
 			},
 			_terminal() {
 				return this.sourceString;
@@ -96,7 +95,7 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if(e.ctorName == 'Statement_entityDeclaration') {
+				if(e.ctorName === 'Statement_entityDeclaration') {
 					return e.nodes();
 				}
 			},
@@ -148,7 +147,7 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if(e.ctorName == 'Statement_refDeclaration') {
+				if(e.ctorName === 'Statement_refDeclaration') {
 					return e.edges();
 				}
 			},
@@ -193,10 +192,7 @@ const App = () => {
 		const result = g.match(newCode);
 		if (result.succeeded()) {
 			
-			setMatchResult(semantics(result).eval());
-
-			//const ast = toAST(result);
-			//console.log(ast);
+			setMatchResult(semantics(result).toString());
 
 			console.log("nodes");
 			const nodes = semanticsNodes(result).nodes();
