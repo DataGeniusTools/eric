@@ -8,6 +8,7 @@ import grammar from './Ohm.js';
 import logo from './logo.png';
 import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
+import CustomNode from './CustomNode';
 
 const { Header, Content } = Layout;
 
@@ -205,7 +206,8 @@ const App = () => {
 				nodes.nodes.map((node, i) => {
 					return {
 						id: node.alias ? node.alias : node.name,
-						data: { label: node.name },
+						type: 'custom',
+						data: { title: node.alias ? node.alias : node.name, color: '#6FB1FC', text: node.attributes ? node.attributes[0].name : '' },
 						position: { x: 0, y: i * 100 }
 					}
 				})
@@ -280,7 +282,7 @@ const App = () => {
 							edges={edges}
 							onEdgesChange={onEdgesChange}
 							fitView
-							//elements={[]} 
+							nodeTypes={{ custom: CustomNode }}
 							style={{ height: '100%', border: '1px solid #e5e5e5' }}
 						>
 							<MiniMap />
