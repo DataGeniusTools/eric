@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer'; 
+import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer';
 //addEdge
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
@@ -12,7 +12,7 @@ import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
 import Dagre from '@dagrejs/dagre';
-import { ForkOutlined } from '@ant-design/icons';
+import { ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const nodeTypes = {
@@ -25,31 +25,31 @@ const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
 const getLayoutedElements = (nodes, edges, options) => {
 	g.setGraph({ rankdir: options.direction });
-  
+
 	edges.forEach((edge) => g.setEdge(edge.source, edge.target));
 	nodes.forEach((node) => g.setNode(node.id, node));
-  
+
 	Dagre.layout(g);
-  
+
 	return {
-	  nodes: nodes.map((node) => {
-		const { x, y } = g.node(node.id);
-  
-		return { ...node, position: { x, y } };
-	  }),
-	  edges,
+		nodes: nodes.map((node) => {
+			const { x, y } = g.node(node.id);
+
+			return { ...node, position: { x, y } };
+		}),
+		edges,
 	};
-  };
+};
 
 function hasDuplicates(array) {
-    for (let i = 0; i < array.length; i++) {
-        for (let j = i + 1; j < array.length; j++) {
-            if (array[i].name === array[j].name) {
-                return array[i].name;
-            }
-        }
-    }
-    return "";
+	for (let i = 0; i < array.length; i++) {
+		for (let j = i + 1; j < array.length; j++) {
+			if (array[i].name === array[j].name) {
+				return array[i].name;
+			}
+		}
+	}
+	return "";
 }
 
 const App = () => {
@@ -82,7 +82,7 @@ const App = () => {
 		[]
 	  );
 	  */
-	
+
 	const onLayout = useCallback(
 		(direction) => {
 			const layouted = getLayoutedElements(nodes, edges, { direction });
@@ -91,12 +91,16 @@ const App = () => {
 			setEdges([...layouted.edges]);
 
 			window.requestAnimationFrame(() => {
-			fitView();
+				fitView();
 			});
-	},
-	[nodes, edges, fitView]
+		},
+		[nodes, edges, fitView]
 	);
-
+	// Minimap support for Toolbar
+	const [showMiniMap, setShowMiniMap] = useState(true);
+	const toggleMiniMap = () => {
+		setShowMiniMap(!showMiniMap);
+	};
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
@@ -312,7 +316,7 @@ const App = () => {
 			// Check duplicate nodes
 			const s = hasDuplicates(nodes.nodes);
 			if (s.length > 0) {
-				setMatchResult("Error: Duplicate node \"" +  s + "\" found");
+				setMatchResult("Error: Duplicate node \"" + s + "\" found");
 				return;
 			}
 		} else {
@@ -371,8 +375,11 @@ const App = () => {
 								<ControlButton title="automatic layout" onClick={() => onLayout('LR')} >
 									<ForkOutlined />
 								</ControlButton>
+								<ControlButton title="MiniMap" onClick={toggleMiniMap}>
+									<BorderOuterOutlined />
+								</ControlButton>
 							</Controls>
-							<MiniMap />
+							{showMiniMap && <MiniMap />}
 						</ReactFlow>
 					</Pane>
 				</SplitPane>
@@ -385,10 +392,10 @@ const App = () => {
 /* This provider must completely encapsulate the App component */
 const AppProvider = (props) => {
 	return (
-	  <ReactFlowProvider>
-		<App {...props} />
-	  </ReactFlowProvider>
+		<ReactFlowProvider>
+			<App {...props} />
+		</ReactFlowProvider>
 	);
-  }
+}
 
 export default AppProvider;
