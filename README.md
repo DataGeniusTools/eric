@@ -39,6 +39,8 @@ Ref OrderLine > Order
 Ref Customer > Address
 ```
 
+## Grammar
+
 Use ERic's domain specific language to create your own entity relationship diagrams.
 
 An entity is marked with the key word Entity followed by a name and an optional alias:
