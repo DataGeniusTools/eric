@@ -22,7 +22,7 @@ const CustomNode = ({ data }) => {
               </div>
           ))}
         </div>
-        ) : ''
+        ) 
         }
       <Handle type="source" position={Position.Right} id="b" style={{ background: '#ddd' }} />
       <Handle type="source" position={Position.Left} id="d" style={{ background: '#ddd' }} />
