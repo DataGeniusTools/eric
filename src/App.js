@@ -175,6 +175,7 @@ const App = () => {
 				else
 					return {
 						name: ident.nodes(),
+						alias: ident.nodes(),
 						attributes: attributes.nodes()[0],
 						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
 					}
@@ -269,7 +270,7 @@ const App = () => {
 			const flowNodes =
 				nodes.nodes.map((node, i) => {
 					return {
-						id: node.alias ? node.alias : node.name,
+						id: node.alias,
 						type: 'custom',
 						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
 						position: { x: 0, y: i * 100 }
@@ -299,7 +300,7 @@ const App = () => {
 			// Check missing Entities used in Refs
 			const nodesArray = [];
 			nodes.nodes.forEach(node => {
-				nodesArray.push(node.name);
+				nodesArray.push(node.alias);
 			});
 			edges.edges.forEach(edge => {
 				if (!nodesArray.includes(edge.from) || !nodesArray.includes(edge.to)) {
