@@ -19,6 +19,17 @@ const edgeTypes = {
 	floating: SimpleFloatingEdge,
 };
 
+function hasDuplicates(array) {
+    for (let i = 0; i < array.length; i++) {
+        for (let j = i + 1; j < array.length; j++) {
+            if (array[i].name === array[j].name) {
+                return array[i].name;
+            }
+        }
+    }
+    return "";
+}
+
 const App = () => {
 	const [code, setCode] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
@@ -260,6 +271,12 @@ const App = () => {
 					return;
 				}
 			});
+			// Check duplicate nodes
+			const s = hasDuplicates(nodes.nodes);
+			if (s.length > 0) {
+				setMatchResult("Error: Duplicate node \"" +  s + "\" found");
+				return;
+			}
 		} else {
 			setMatchResult(result.shortMessage);
 		}
