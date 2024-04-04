@@ -327,7 +327,7 @@ const App = () => {
 							nodeTypes={nodeTypes}
 							edgeTypes={edgeTypes}
 							connectionMode={ConnectionMode.Loose}
-							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff' }}
+							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff', fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif' }}
 						>
 							<Controls position="bottom-right" />
 							<MiniMap />
