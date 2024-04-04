@@ -8,7 +8,7 @@ const CustomNode = ({ data }) => {
       <div className="title" style={{ fontWeight: '600', backgroundColor: '#eee', textAlign: 'left', marginBottom: '0px', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
         {data.title}
       </div>
-      { data.attributes ? (
+      {data.attributes && data.attributes.length > 0 && (
         <div className="content" style={{ overflowY: 'auto', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
           {data.attributes.map((attribute, index) => (
               <div key={index} style={{ verticalAlign: 'middle', display: 'flex'}}>
@@ -31,4 +31,3 @@ const CustomNode = ({ data }) => {
 };
 
 export default CustomNode;
-// data.color
