@@ -16,7 +16,7 @@ const nodeTypes = {
 	custom: CustomNode,
 };
 const edgeTypes = {
-  floating: SimpleFloatingEdge,
+	floating: SimpleFloatingEdge,
 };
 
 const App = () => {
@@ -226,14 +226,11 @@ const App = () => {
 						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
 						position: { x: 0, y: i * 100 }
 					}
-				})
-				;
+				});
 			console.log("flowNodes");
 			console.log(flowNodes);
 			setNodes(flowNodes);
 			// todo: keep position if nodes already exist
-			// todo: custom nodes if entity has attributes 
-
 			const flowEdges =
 				edges.edges.map((edge, i) => {
 					return {
@@ -247,12 +244,22 @@ const App = () => {
 						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
 					}
-				})
-				;
+				});
 			console.log("flowEdges");
 			console.log(flowEdges);
 			setEdges(flowEdges);
-
+			// Check missing Entities used in Refs
+			const nodesArray = [];
+			nodes.nodes.forEach(node => {
+				nodesArray.push(node.name);
+			});
+			edges.edges.forEach(edge => {
+				if (!nodesArray.includes(edge.from) || !nodesArray.includes(edge.to)) {
+					const missing = !nodesArray.includes(edge.from) ? edge.from : edge.to;
+					setMatchResult("Error: Invalid Entity \"" + missing + "\" found in \"Ref " + edge.from + " > " + edge.to + "\"");
+					return;
+				}
+			});
 		} else {
 			setMatchResult(result.shortMessage);
 		}
