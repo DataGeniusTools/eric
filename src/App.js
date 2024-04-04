@@ -375,7 +375,7 @@ const App = () => {
 								<ControlButton title="automatic layout" onClick={() => onLayout('LR')} >
 									<ForkOutlined />
 								</ControlButton>
-								<ControlButton title="MiniMap" onClick={toggleMiniMap}>
+								<ControlButton title="mini map" onClick={toggleMiniMap}>
 									<BorderOuterOutlined />
 								</ControlButton>
 							</Controls>
