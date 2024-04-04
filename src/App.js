@@ -2,7 +2,8 @@ import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Input, Layout, Space } from 'antd';
 import * as ohm from 'ohm-js';
-import ReactFlow, { addEdge, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ConnectionMode } from 'react-flow-renderer'; // 'react-flow-renderer';
+import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer'; 
+//addEdge
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -10,6 +11,8 @@ import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
+import Dagre from '@dagrejs/dagre';
+import { ForkOutlined } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const nodeTypes = {
@@ -18,6 +21,25 @@ const nodeTypes = {
 const edgeTypes = {
 	floating: SimpleFloatingEdge,
 };
+const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
+
+const getLayoutedElements = (nodes, edges, options) => {
+	g.setGraph({ rankdir: options.direction });
+  
+	edges.forEach((edge) => g.setEdge(edge.source, edge.target));
+	nodes.forEach((node) => g.setNode(node.id, node));
+  
+	Dagre.layout(g);
+  
+	return {
+	  nodes: nodes.map((node) => {
+		const { x, y } = g.node(node.id);
+  
+		return { ...node, position: { x, y } };
+	  }),
+	  edges,
+	};
+  };
 
 function hasDuplicates(array) {
     for (let i = 0; i < array.length; i++) {
@@ -31,6 +53,7 @@ function hasDuplicates(array) {
 }
 
 const App = () => {
+	const { fitView } = useReactFlow();
 	const [code, setCode] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
@@ -59,6 +82,20 @@ const App = () => {
 		[]
 	  );
 	  */
+	
+	const onLayout = useCallback(
+		(direction) => {
+			const layouted = getLayoutedElements(nodes, edges, { direction });
+
+			setNodes([...layouted.nodes]);
+			setEdges([...layouted.edges]);
+
+			window.requestAnimationFrame(() => {
+			fitView();
+			});
+	},
+	[nodes, edges, fitView]
+	);
 
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
@@ -329,7 +366,11 @@ const App = () => {
 							connectionMode={ConnectionMode.Loose}
 							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff', fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif' }}
 						>
-							<Controls position="bottom-right" />
+							<Controls position="bottom-right" >
+								<ControlButton title="automatic layout" onClick={() => onLayout('LR')} >
+									<ForkOutlined />
+								</ControlButton>
+							</Controls>
 							<MiniMap />
 						</ReactFlow>
 					</Pane>
@@ -339,4 +380,14 @@ const App = () => {
 	);
 };
 
-export default App;
+/* ReactFlowProvider needed for usage of e.g. useReactFlow, otherwise error occurs - see: https://reactflow.dev/learn/troubleshooting#warning-seems-like-you-have-not-used-zustand-provider-as-an-ancestor */
+/* This provider must completely encapsulate the App component */
+const AppProvider = (props) => {
+	return (
+	  <ReactFlowProvider>
+		<App {...props} />
+	  </ReactFlowProvider>
+	);
+  }
+
+export default AppProvider;

@@ -47,6 +47,8 @@ function getHandleCoordsByPosition(node, handlePosition) {
     case Position.Bottom:
       offsetY = handle.height;
       break;
+    default:
+      break;
   }
 
   const x = node.positionAbsolute.x + handle.x + offsetX;
