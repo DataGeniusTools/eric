@@ -15,7 +15,7 @@ const CustomNode = ({ data }) => {
                 <div style={{marginRight: '8px'}}>
                   {(attribute.datatype === 'int' || attribute.datatype === 'double') ? <NumberOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : (attribute.datatype === 'date' ? <ClockCircleOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : <FontSizeOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> ) }
                 </div>
-                <div>{attribute.name}</div>
+                <div style={{ fontWeight: attribute.isPrimaryKey === 'Y' ? '600' : 'normal' }}>{attribute.name}</div>
                 <div style={{marginLeft: '8px', width: '100%', textAlign: 'right' }}>
                   {attribute.isPrimaryKey === 'Y' ? <KeyOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : ''}
                 </div>
