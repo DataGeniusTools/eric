@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import MonacoEditor from '@monaco-editor/react';
-import { Input, Layout, Space } from 'antd';
+import { Tooltip, Input, Layout, Space, Typography } from 'antd';
+import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
 import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer';
 //addEdge
@@ -12,8 +13,8 @@ import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
 import Dagre from '@dagrejs/dagre';
-import { ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 
+const { Text, Link } = Typography;
 const { Header, Content } = Layout;
 const nodeTypes = {
 	custom: CustomNode,
@@ -326,10 +327,17 @@ const App = () => {
 
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
-			<Header style={{ display: 'flex', alignItems: 'center' }}>
+			<Header>
 				<Space size="middle">
 					<img src={logo} alt="Logo" style={{ height: '32px', verticalAlign: 'middle' }} />
-					<h1 style={{ color: '#fff', margin: 0 }}>ERic</h1>
+					<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
+				</Space>
+				<Space style={{ float: 'right' }} >
+					<Link href="https://github.com/treimers/eric" target="_blank">
+						<Tooltip title="go to Github repository">
+							<GithubOutlined style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle' }} />
+						</Tooltip>
+					</Link>
 				</Space>
 			</Header>
 			<Content style={{ padding: '0px', height: 'calc(100vh - 100px)' }}>
