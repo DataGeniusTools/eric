@@ -8,9 +8,25 @@ module.exports = `Model {
 		| "Ref" Refelement                          -- refDeclaration
 
 	Refelement (valid Ref element with "entity > entity" or "entity.attribute > entity.attribute")
-		= ident "." ident ">" ident "." ident       -- attributeRef
-		| ident ">" ident                           -- entityRef
+		= RefEntity
+		| RefSingleAttribute
+		| RefMultipleAttribute
 
+	RefEntity
+		= ident ">" ident
+		
+	RefSingleAttribute                             
+		= ident "." ident ">" ident "." ident
+		
+	RefMultipleAttribute                            
+		= ident MultipleAttribute ">" ident MultipleAttribute
+
+	MultipleAttribute
+		= ".(" ident OptionalAttribute* ")"
+
+	OptionalAttribute
+		= "," ident
+	
 	Attributes
         = "{" Attribute* "}" 
         

@@ -127,11 +127,23 @@ const App = () => {
 			Refelement(e) {
 				return e.toString();
 			},
-			Refelement_attributeRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+			RefEntity(entity1, greater, entity2) {
+				return entity1.toString() + " → " + entity2.toString();
+			},
+			RefSingleAttribute(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
 				return entity1.toString() + "." + attribute1.toString() + " → " + entity2.toString() + "." + attribute2.toString();
 			},
-			Refelement_entityRef(entity1, greater, entity2) {
-				return entity1.toString() + " → " + entity2.toString();
+			RefMultipleAttribute(entity1, multAttribute1, greater, entity2, multAttribute2) {
+				return entity1.toString() + ".(" + multAttribute1.toString() + ") → " + entity2.toString() + ".(" + multAttribute2.toString() + ")";
+			},
+			MultipleAttribute(dotParenthesis1, attribute, optattributes, parenthesis) {
+				const optional = optattributes.toString();
+				if (optional === null)
+					return attribute.toString();
+				return attribute.toString() + "," + optional;
+			},
+			OptionalAttribute(comma, attribute) {
+				return attribute.toString();
 			},
 			Attributes(open, e, close) {
 				return " { " + e.toString() + " }";
@@ -228,7 +240,7 @@ const App = () => {
 			Refelement(e) {
 				return e.edges();
 			},
-			Refelement_attributeRef(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+			RefSingleAttribute(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
 				return {
 					from: entity1.edges(),
 					fromAttribute: attribute1.edges(),
@@ -238,7 +250,23 @@ const App = () => {
 					//direction: greater
 				}
 			},
-			Refelement_entityRef(entity1, greater, entity2) {
+			RefMultipleAttribute(entity1, multAttribute1, greater, entity2, multAttribute2) {
+				return {
+					from: entity1.edges(),
+					fromAttribute: multAttribute1.edges(),
+					to: entity2.edges(),
+					toAttribute: multAttribute2.edges(),
+					type: 'AttributeRef'
+					//direction: greater
+				}
+			},
+			MultipleAttribute(dotParenthesis1, attribute, optattributes, parenthesis) {
+				return attribute.edges() + "." + optattributes.edges();
+			},
+			OptionalAttribute(comma, attribute) {
+				return attribute.edges();
+			},
+			RefEntity(entity1, greater, entity2) {
 				return {
 					from: entity1.edges(),
 					to: entity2.edges(),
