@@ -26,7 +26,7 @@ Entity OrderLine {
 }
 
 Entity Address {
-  int id [pk]
+  id int [pk]
   zip string
   street string
   city string  
