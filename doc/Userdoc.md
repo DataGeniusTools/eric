@@ -126,10 +126,13 @@ Entity D {
 }
 ```
 
+**Ref A > B**
 The first form creates a direct relation between two entities A and B.
 
-The second and the third form is more precise in the sense that attributes are used to specify the relation between the two entities. If the linked entity has one primary key only the second syntax is sufficient.
+**Ref A.id > B.idA**
+The second and the third form are more precise in the sense that attributes are used to specify the relation between the two entities. If the linked is created with one attribute only the second syntax is sufficient.
 
+**Ref C.(id,name) > D.(idC, nameC)**
 For cases where the entities are linked using more than one attribute the third form must be used.
 
 ### Comments
@@ -145,7 +148,7 @@ Entity Person {
 }
 ```
 
-Multi line comments are opened with '/*' and closed by '*/'
+Multi line comments are opened with '/\*' and closed by '\*/'
 
 ```
 /*****************
