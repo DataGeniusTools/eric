@@ -12,9 +12,10 @@ import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
-import Dagre from '@dagrejs/dagre';
+import ELK from 'elkjs/lib/elk.bundled.js';
 
-const { Text, Link } = Typography;
+
+const { Link } = Typography;
 const { Header, Content } = Layout;
 const nodeTypes = {
 	custom: CustomNode,
@@ -22,24 +23,44 @@ const nodeTypes = {
 const edgeTypes = {
 	floating: SimpleFloatingEdge,
 };
-const g = new Dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
-
-const getLayoutedElements = (nodes, edges, options) => {
-	g.setGraph({ rankdir: options.direction });
-
-	edges.forEach((edge) => g.setEdge(edge.source, edge.target));
-	nodes.forEach((node) => g.setNode(node.id, node));
-
-	Dagre.layout(g);
-
-	return {
-		nodes: nodes.map((node) => {
-			const { x, y } = g.node(node.id);
-
-			return { ...node, position: { x, y } };
-		}),
-		edges,
+const elk = new ELK();
+const elkOptions = {
+	'elk.algorithm': 'layered',
+	'elk.layered.spacing.nodeNodeBetweenLayers': '100',
+	'elk.spacing.nodeNode': '80',
+  };
+const getLayoutedElements = (nodes, edges, options = {}) => {
+	const isHorizontal = options?.['elk.direction'] === 'RIGHT';
+	const graph = {
+	  id: 'root',
+	  layoutOptions: options,
+	  children: nodes.map((node) => ({
+		...node,
+		// Adjust the target and source handle positions based on the layout
+		// direction.
+		targetPosition: isHorizontal ? 'left' : 'top',
+		sourcePosition: isHorizontal ? 'right' : 'bottom',
+  
+		// Hardcode a width and height for elk to use when layouting.
+		width: 150,
+		height: 50,
+	  })),
+	  edges: edges,
 	};
+
+	return elk
+    .layout(graph)
+    .then((layoutedGraph) => ({
+      nodes: layoutedGraph.children.map((node) => ({
+        ...node,
+        // React Flow expects a position property on the node instead of `x`
+        // and `y` fields.
+        position: { x: node.x, y: node.y },
+      })),
+
+      edges: layoutedGraph.edges,
+    }))
+    .catch(console.error);
 };
 
 function hasDuplicates(array) {
@@ -83,20 +104,24 @@ const App = () => {
 		[]
 	  );
 	  */
-
 	const onLayout = useCallback(
-		(direction) => {
-			const layouted = getLayoutedElements(nodes, edges, { direction });
-
-			setNodes([...layouted.nodes]);
-			setEdges([...layouted.edges]);
-
-			window.requestAnimationFrame(() => {
-				fitView();
-			});
+		({ direction, useInitialNodes = false }) => {
+		  const opts = { 'elk.direction': direction, ...elkOptions };
+		  const ns = nodes;
+		  const es = edges;
+		  //const ns = useInitialNodes ? initialNodes : nodes;
+		  //const es = useInitialNodes ? initialEdges : edges;
+	
+		  getLayoutedElements(ns, es, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+			setNodes(layoutedNodes);
+			setEdges(layoutedEdges);
+	
+			window.requestAnimationFrame(() => fitView());
+		  });
 		},
 		[nodes, edges, fitView]
-	);
+	  );
+
 	// Minimap support for Toolbar
 	const [showMiniMap, setShowMiniMap] = useState(true);
 	const toggleMiniMap = () => {
@@ -408,7 +433,7 @@ const App = () => {
 							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff', fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif' }}
 						>
 							<Controls position="bottom-right" >
-								<ControlButton title="automatic layout" onClick={() => onLayout('LR')} >
+								<ControlButton title="automatic layout" onClick={() => onLayout({ direction: 'RIGHT' })} >
 									<ForkOutlined />
 								</ControlButton>
 								<ControlButton title="mini map" onClick={toggleMiniMap}>
