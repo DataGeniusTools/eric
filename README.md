@@ -43,4 +43,6 @@ Ref OrderLine > Order
 Ref Customer > Address
 ```
 
+You can find a demo environment always running the current stable version at [ERic Demo](https://demoeric.netlify.app/).
+
 You can find a tutorial and the complete description of ERic's grammar in the [user manual here](doc/Userdoc.md).

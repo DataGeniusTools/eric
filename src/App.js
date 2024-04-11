@@ -13,6 +13,7 @@ import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './CustomNode';
 import ELK from 'elkjs/lib/elk.bundled.js';
+import DownloadButton from './components/DownloadButton';
 
 
 const { Link } = Typography;
@@ -439,6 +440,7 @@ const App = () => {
 								<ControlButton title="mini map" onClick={toggleMiniMap}>
 									<BorderOuterOutlined />
 								</ControlButton>
+								<DownloadButton />
 							</Controls>
 							{showMiniMap && <MiniMap />}
 						</ReactFlow>
