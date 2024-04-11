@@ -11,7 +11,7 @@ import logo from './logo.png';
 import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
-import CustomNode from './CustomNode';
+import CustomNode from './components/CustomNode';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import DownloadButton from './components/DownloadButton';
 
