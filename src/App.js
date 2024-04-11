@@ -3,7 +3,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
 import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
-import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, MarkerType, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer';
+import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer';
 //addEdge
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
@@ -124,7 +124,7 @@ const App = () => {
 	  );
 
 	// Minimap support for Toolbar
-	const [showMiniMap, setShowMiniMap] = useState(true);
+	const [showMiniMap, setShowMiniMap] = useState(false);
 	const toggleMiniMap = () => {
 		setShowMiniMap(!showMiniMap);
 	};
@@ -345,9 +345,6 @@ const App = () => {
 						id: edge.from + "-" + edge.to,
 						source: edge.from, // todo: attribute ref /// alias vs. name
 						target: edge.to, // todo: attribute ref /// alias vs. name
-						markerEnd: {
-							type: MarkerType.Arrow,
-						},
 						label: edge.name,
 						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
