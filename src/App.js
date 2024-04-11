@@ -341,10 +341,19 @@ const App = () => {
 			// todo: keep position if nodes already exist
 			const flowEdges =
 				edges.edges.map((edge, i) => {
-					return {
+					return edge.type === 'EntityRef' ? {
 						id: edge.from + "-" + edge.to,
 						source: edge.from, // todo: attribute ref /// alias vs. name
 						target: edge.to, // todo: attribute ref /// alias vs. name
+						label: edge.name,
+						//type: 'floating'
+						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
+					} : {
+						id: edge.from + "-" + edge.to,
+						source: edge.from, // todo: attribute ref /// alias vs. name
+						target: edge.to, // todo: attribute ref /// alias vs. name
+						sourceHandle: `${edge.from}-source-${edge.fromAttribute}`,
+						targetHandle: `${edge.to}-target-${edge.toAttribute}`,
 						label: edge.name,
 						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types

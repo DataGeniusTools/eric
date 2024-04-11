@@ -13,14 +13,14 @@ const CustomNode = ({ data }) => {
               //id={`${model.id}-source-${field.name}`}
               id={`${data.title}-entity-right`}
               position={Position.Right}
-              type="source"
+              type="target"
             />
       </div>
       {data.attributes && data.attributes.length > 0 && (
         <div className="content" > {/*style={{ overflowY: 'auto' }}*/}
           {data.attributes.map((attribute, index) => (
               <div key={index} style={{ verticalAlign: 'middle', display: 'flex', position: 'relative', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px'}}>
-                <Handle type="source" position={Position.Left} id={`${index}-attribute-left`} style={{ background: '#ddd' }} />
+                <Handle type="source" position={Position.Left} id={`${data.title}-source-${attribute.name}`} style={{ background: '#ddd' }} />
                 <div style={{marginRight: '8px'}}>
                   {(attribute.datatype === 'int' || attribute.datatype === 'double') ? <NumberOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : (attribute.datatype === 'date' ? <ClockCircleOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : <FontSizeOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> ) }
                 </div>
@@ -28,7 +28,7 @@ const CustomNode = ({ data }) => {
                 <div style={{marginLeft: '8px', width: '100%', textAlign: 'right' }}>
                   {attribute.isPrimaryKey === 'Y' ? <KeyOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : ''}
                 </div>
-                <Handle type="source" position={Position.Right} id={`${index}-attribute-right`} style={{ background: '#ddd' }} />
+                <Handle type="target" position={Position.Right} id={`${data.title}-target-${attribute.name}`} style={{ background: '#ddd' }} />
               </div>
           ))}
         </div>
