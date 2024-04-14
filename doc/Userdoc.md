@@ -57,7 +57,7 @@ ERic supports the following data types
 With keyword Ref you can model "one to many" relations between two entities like
 
 ```
-Ref A > B
+Ref A.id > B.id
 ```
 
 This will create the "one to many" connection in the ERic graph.
@@ -76,64 +76,59 @@ For names of entities and attributes you can use lower case or uppercase letter 
 - Entity order_line
 - Entity abc_2_XYZ
 
+### Schemas
+
+Entity names can be preceded by a schema name. A schema name is optional and is separated from the entity name using a dot '.' like
+
+```
+Entity Order.OrderHeader {
+  id int [pk]
+  customerId int
+  orderDate date
+}
+
+Entity Order.OrderLine {
+  position int [pk]
+  orderId int
+  quantiy int
+  articleId int
+}
+```
+
 ### Refs
 
 You can use the name of an entity or its alias when you create a Ref:
 
 ```
-Entity Customer as C
-Entity Address as A
+Entity Customer as C {
+	id int
+}
 
-Ref Customer > Address
+Entity Address as A {
+	id int
+}
+
+Ref Customer.id > Address.id
 
 or
 
-Ref C > Address
+Ref C.id > Address.id
 
 or
 
-Ref C > A
+Ref C.id > A.id
 ```
 
-There are three forms of Ref definitions available:
+The Ref definition is composed from two entities separated by the greater as symbol '>'. The entity is specified by two or three names separated by a dot '.'
 
-- Ref A > B
-- Ref A.id > B.idA
-- Ref C.(id,name) > D.(idC, nameC)
+1. an optional schema
+1. an entity name
+1. an attribute name
 
-for these entities:
+like in
 
-```
-Entity A {
-  id int [pk]
-  name string
-}
-
-Entity B {
-  idA int
-  value double  
-}
-
-Entity C {
-  id int [pk]
-  name string [pk]
-}
-
-Entity D {
-  idC int [pk]
-  nameC string [pk]
-  value double  
-}
-```
-
-**Ref A > B**
-The first form creates a direct relation between two entities A and B.
-
-**Ref A.id > B.idA**
-The second and the third form are more precise in the sense that attributes are used to specify the relation between the two entities. If the linked is created with one attribute only the second syntax is sufficient.
-
-**Ref C.(id,name) > D.(idC, nameC)**
-For cases where the entities are linked using more than one attribute the third form must be used.
+- Ref Customer.id > Address.id
+- Ref Order.OrderLine.orderId > Order.OrderHeader.id
 
 ### Comments
 
