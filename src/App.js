@@ -41,7 +41,6 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 		// direction.
 		targetPosition: isHorizontal ? 'left' : 'top',
 		sourcePosition: isHorizontal ? 'right' : 'bottom',
-  
 		// Hardcode a width and height for elk to use when layouting.
 		width: 150,
 		height: 50,
@@ -131,9 +130,7 @@ const App = () => {
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
-
 		/* semantic for toString */
-
 		const semantics = g.createSemantics().addOperation('toString', {
 			Statements(e) {
 				return e.toString();
@@ -141,35 +138,13 @@ const App = () => {
 			Statement(e) {
 				return e.toString();
 			},
-			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
+			EntityDeclaration(entity, ident1, dot, ident2, as, alias, attributes) {
+				var ident = ident1.toString();
+				if (ident2.numChildren > 0)
+					ident += "." + ident2.toString();
 				if (as.numChildren > 0)
-					return "Entity " + ident.toString() + " ↣ " + ident2.toString() + attributes.toString();
-				else
-					return "Entity " + ident.toString() + attributes.toString();
-			},
-			Statement_refDeclaration(ref, refelement) {
-				return "Ref " + refelement.toString();
-			},
-			Refelement(e) {
-				return e.toString();
-			},
-			RefEntity(entity1, greater, entity2) {
-				return entity1.toString() + " → " + entity2.toString();
-			},
-			RefSingleAttribute(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
-				return entity1.toString() + "." + attribute1.toString() + " → " + entity2.toString() + "." + attribute2.toString();
-			},
-			RefMultipleAttribute(entity1, multAttribute1, greater, entity2, multAttribute2) {
-				return entity1.toString() + ".(" + multAttribute1.toString() + ") → " + entity2.toString() + ".(" + multAttribute2.toString() + ")";
-			},
-			MultipleAttribute(dotParenthesis1, attribute, optattributes, parenthesis) {
-				const optional = optattributes.toString();
-				if (optional === null)
-					return attribute.toString();
-				return attribute.toString() + "," + optional;
-			},
-			OptionalAttribute(comma, attribute) {
-				return attribute.toString();
+					ident += " as " + alias.toString()[0]
+				return  "Entity " + ident + attributes.toString();
 			},
 			Attributes(open, e, close) {
 				return " { " + e.toString() + " }";
@@ -179,6 +154,22 @@ const App = () => {
 					return e.toString() + "🔑 " + type.toString();
 				else
 					return e.toString() + " " + type.toString();
+			},
+			RefDeclaration(ref, refelement) {
+				return "Ref " + refelement.toString();
+			},
+			RefElement(ident11, dot11, ident12, dot12, ident13, greater, ident21, dot21, ident22, dot22, ident23) {
+				var ident1 = ident11.toString();
+				if (dot12.numChildren > 0)
+					ident1 += "." + ident12.toString() + "." + ident13.toString();
+				else
+					ident1 += "." + ident12.toString();
+				var ident2 = ident21.toString();
+				if (dot22.numChildren > 0)
+					ident2 += "." + ident22.toString() + "." + ident23.toString();
+				else
+					ident2 += "." + ident22.toString();
+				return ident1 + " → " + ident2;
 			},
 			datatype(e) {
 				return e.toString();
@@ -193,9 +184,7 @@ const App = () => {
 				return this.sourceString;
 			},
 		});
-
 		/* semantic for nodes */
-
 		const semanticsNodes = g.createSemantics().addOperation('nodes', {
 			Statements(e) {
 				return {
@@ -203,35 +192,33 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if (e.ctorName === 'Statement_entityDeclaration') {
+				if (e.ctorName === 'EntityDeclaration') {
 					return e.nodes();
 				}
 			},
-			Statement_entityDeclaration(entity, ident, as, ident2, attributes) {
+			EntityDeclaration(entity, ident1, dot, ident2, as, alias, attributes) {
+				var name = ident1.sourceString;
+				if (dot.numChildren > 0)
+					name += ident2.sourceString;
+				var aliasName = name;
 				if (as.numChildren > 0)
-					return {
-						name: ident.nodes(),
-						alias: ident2.nodes()[0],
-						attributes: attributes.nodes()[0],
-						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
-					}
-				else
-					return {
-						name: ident.nodes(),
-						alias: ident.nodes(),
-						attributes: attributes.nodes()[0],
-						hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
-					}
+					aliasName = alias.nodes()[0];
+				return {
+					name: name,
+					alias: aliasName,
+					attributes: attributes.nodes()[0],
+					hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
+				};
 			},
 			Attributes(open, e, close) {
-				return e.nodes()
+				return e.nodes();
 			},
 			Attribute(e, type, pk) {
 				return {
 					name: e.nodes(),
 					datatype: type.nodes()[0],
 					isPrimaryKey: pk.numChildren > 0 ? 'Y' : 'N'
-				}
+				};
 			},
 			datatype(e) {
 				return e.nodes();
@@ -246,9 +233,7 @@ const App = () => {
 				return this.sourceString;
 			},
 		});
-
 		/* semantic for edges */
-
 		const semanticsEdges = g.createSemantics().addOperation('edges', {
 			Statements(e) {
 				return {
@@ -256,49 +241,34 @@ const App = () => {
 				}
 			},
 			Statement(e) {
-				if (e.ctorName === 'Statement_refDeclaration') {
+				if (e.ctorName === 'RefDeclaration') {
 					return e.edges();
 				}
 			},
-			Statement_refDeclaration(ref, refelement) {
+			RefDeclaration(ref, refelement) {
 				return refelement.edges();
 			},
-			Refelement(e) {
-				return e.edges();
-			},
-			RefSingleAttribute(entity1, dot1, attribute1, greater, entity2, dot2, attribute2) {
+			RefElement(ident11, dot11, ident12, dot12, ident13, greater, ident21, dot21, ident22, dot22, ident23) {
+				var from = ident11.edges();
+				var fromAttribute = ident12.edges();
+				if (dot12.numChildren > 0) {
+					from += "." + ident12.edges();
+					fromAttribute = ident13.edges();
+				}
+				var to = ident21.edges();
+				var toAttribute = ident22.edges();
+				if (dot22.numChildren > 0) {
+					to += "." + ident22.edges();
+					toAttribute = ident23.edges();
+				}
 				return {
-					from: entity1.edges(),
-					fromAttribute: attribute1.edges(),
-					to: entity2.edges(),
-					toAttribute: attribute2.edges(),
+					from: from,
+					fromAttribute: fromAttribute,
+					to: to,
+					toAttribute: toAttribute,
 					type: 'AttributeRef'
 					//direction: greater
-				}
-			},
-			RefMultipleAttribute(entity1, multAttribute1, greater, entity2, multAttribute2) {
-				return {
-					from: entity1.edges(),
-					fromAttribute: multAttribute1.edges(),
-					to: entity2.edges(),
-					toAttribute: multAttribute2.edges(),
-					type: 'AttributeRef'
-					//direction: greater
-				}
-			},
-			MultipleAttribute(dotParenthesis1, attribute, optattributes, parenthesis) {
-				return attribute.edges() + "." + optattributes.edges();
-			},
-			OptionalAttribute(comma, attribute) {
-				return attribute.edges();
-			},
-			RefEntity(entity1, greater, entity2) {
-				return {
-					from: entity1.edges(),
-					to: entity2.edges(),
-					type: 'EntityRef'
-					//direction: greater
-				}
+				};
 			},
 			datatype(e) {
 				return e.edges();
@@ -316,20 +286,17 @@ const App = () => {
 
 		const result = g.match(newCode);
 		if (result.succeeded()) {
-
 			setMatchResult(semantics(result).toString());
-
 			console.log("nodes");
 			const nodes = semanticsNodes(result).nodes();
 			console.log(nodes);
 			console.log("edges");
 			const edges = semanticsEdges(result).edges();
 			console.log(edges);
-
 			const flowNodes =
 				nodes.nodes.map((node, i) => {
 					return {
-						id: node.alias,
+						id: node.name,
 						type: 'custom',
 						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
 						position: { x: 0, y: i * 100 }

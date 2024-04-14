@@ -1,38 +1,27 @@
-module.exports = `Model {
-
+module.exports = `
+Model {
 	Statements
 	  = Statement*
 
-	Statement (valid statement starting with Entity or Ref)
-		= "Entity" ident ("as" ident)? Attributes*  -- entityDeclaration
-		| "Ref" Refelement                          -- refDeclaration
+	Statement
+		= EntityDeclaration
+		| RefDeclaration
 
-	Refelement (valid Ref element with "entity > entity" or "entity.attribute > entity.attribute")
-		= RefEntity
-		| RefSingleAttribute
-		| RefMultipleAttribute
+	EntityDeclaration
+		= "Entity" ident ("." ident)? ("as" ident)? Attributes*
 
-	RefEntity
-		= ident ">" ident
-		
-	RefSingleAttribute                             
-		= ident "." ident ">" ident "." ident
-		
-	RefMultipleAttribute                            
-		= ident MultipleAttribute ">" ident MultipleAttribute
-
-	MultipleAttribute
-		= ".(" ident OptionalAttribute* ")"
-
-	OptionalAttribute
-		= "," ident
-	
 	Attributes
         = "{" Attribute* "}" 
-        
+
 	Attribute
 		= ident (datatype)? ("[pk]")?
 
+	RefDeclaration
+		= "Ref" RefElement
+
+	RefElement                             
+		= ident "." ident ("." ident)? ">" ident "." ident ("." ident)?
+		
 	datatype
 		= "date"
 		| "double"
