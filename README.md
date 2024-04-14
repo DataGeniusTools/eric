@@ -17,6 +17,7 @@ Entity Customer {
   id int [pk]
   fname string
   lname string
+  addressId int
 }
 
 Entity Order {
@@ -27,6 +28,7 @@ Entity Order {
 
 Entity OrderLine {
   position int [pk]
+  orderId int
   quantiy int
   articleId int
 }
@@ -38,11 +40,11 @@ Entity Address {
   city string  
 }
 
-Ref Customer > Order
+Ref Order.customerId > Customer.id
 
-Ref OrderLine > Order
+Ref OrderLine.orderId > Order.id
 
-Ref Customer > Address
+Ref Customer.addressId > Address.id
 ```
 
 You can find a tutorial and the complete description of ERic's grammar in the [user manual here](doc/Userdoc.md).
