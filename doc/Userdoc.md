@@ -15,9 +15,9 @@ An entity is marked with the key word Entity followed by a name:
 Entity Person
 ```
 
-![Entity](Entity.png)
+<img src="Entity.png" alt="Entity" width="222" height="55" style="text-align: center;"/>
 
-This is the simplest form of an entity. Entities are displayed as nodes in the ERic graph. You can add an optional alias that can be used to reference the entity:
+This is the simplest form of an entity. Entities are displayed as nodes in ERic's graph. You can add an optional alias that can be used to reference the entity:
 
 ```
 Entity Person as P
@@ -33,9 +33,9 @@ Entity Person {
 }
 ```
 
-![Entity Attributes](EntityAttributes.png)
+<img src="EntityAttributes.png" alt="EntityAttributes" width="240" height="118" style="text-align: center;"/>
 
-Finally you can add data types to the attributes and mark primary keys with a "[pk]":
+And finally you can add data types to the attributes and mark primary keys with a "[pk]":
 
 ```
 Entity Person {
@@ -45,7 +45,7 @@ Entity Person {
 }
 ```
 
-![Entity Complete](EntityComplete.png)
+<img src="EntityComplete.png" alt="EntityComplete" width="229" height="115" style="text-align: center;"/>
 
 ERic supports the following data types
 
@@ -54,16 +54,24 @@ ERic supports the following data types
 - int
 - string
 
-With keyword Ref you can model "one to many" relations between two entities like
+With keyword Ref you can model "many to one" relations between two entities like
 
 ```
-Ref A.id > B.id
+Entity A {
+  id int [pk]
+  foreignKey int
+}
+
+Entity B {
+  id int [pk]
+}
+
+Ref A.foreignKey > B.id
 ```
 
-This will create the "one to many" connection in the ERic graph.
+This will create a "one to many" connection in ERic's graph.
 
-![Ref](Ref.png)
-
+<img src="Ref.png" alt="Ref" width="503" height="136" style="text-align: center;"/>
 
 ## Grammar
 
@@ -102,21 +110,22 @@ You can use the name of an entity or its alias when you create a Ref:
 ```
 Entity Customer as C {
 	id int
+	address_id int
 }
 
 Entity Address as A {
 	id int
 }
 
-Ref Customer.id > Address.id
+Ref Customer.address_id > Address.id
 
 or
 
-Ref C.id > Address.id
+Ref C.address_id > Address.id
 
 or
 
-Ref C.id > A.id
+Ref C.address_id > A.id
 ```
 
 The Ref definition is composed from two entities separated by the greater as symbol '>'. The entity is specified by two or three names separated by a dot '.'
