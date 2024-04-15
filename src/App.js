@@ -66,9 +66,8 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 function hasDuplicates(array) {
 	for (let i = 0; i < array.length; i++) {
 		for (let j = i + 1; j < array.length; j++) {
-			if (array[i].name === array[j].name) {
-				return array[i].name;
-			}
+			if (array[i].alias === array[j].alias)
+				return array[i].alias;
 		}
 	}
 	return "";
@@ -130,7 +129,7 @@ const App = () => {
 	const handleEditorChange = (newCode, event) => {
 		setCode(newCode);
 		const g = ohm.grammar(grammar);
-		/* semantic for toString */
+		/* Semantic for toString */
 		const semantics = g.createSemantics().addOperation('toString', {
 			Statements(e) {
 				return e.toString();
@@ -184,7 +183,7 @@ const App = () => {
 				return this.sourceString;
 			},
 		});
-		/* semantic for nodes */
+		/* Semantic for nodes */
 		const semanticsNodes = g.createSemantics().addOperation('nodes', {
 			Statements(e) {
 				return {
@@ -233,7 +232,7 @@ const App = () => {
 				return this.sourceString;
 			},
 		});
-		/* semantic for edges */
+		/* Semantic for edges */
 		const semanticsEdges = g.createSemantics().addOperation('edges', {
 			Statements(e) {
 				return {
@@ -308,19 +307,24 @@ const App = () => {
 			// todo: keep position if nodes already exist
 			const flowEdges =
 				edges.edges.map((edge, i) => {
-					return edge.type === 'EntityRef' ? {
-						id: edge.from + "-" + edge.to,
-						source: edge.from, // todo: attribute ref /// alias vs. name
-						target: edge.to, // todo: attribute ref /// alias vs. name
-						label: edge.name,
-						//type: 'floating'
-						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
-					} : {
-						id: edge.from + "-" + edge.to,
-						source: edge.from, // todo: attribute ref /// alias vs. name
-						target: edge.to, // todo: attribute ref /// alias vs. name
-						sourceHandle: `${edge.from}-source-${edge.fromAttribute}`,
-						targetHandle: `${edge.to}-target-${edge.toAttribute}`,
+					var from = edge.from;
+					// Find node in nodes list
+					var matchingNode = nodes.nodes.find(node => node.alias === edge.from);
+					// Use node name when alias found
+					if (matchingNode && matchingNode.alias !== matchingNode.name)
+						from = matchingNode.name;
+					var to = edge.to;
+					// Find node in nodes list
+					matchingNode = nodes.nodes.find(node => node.alias === edge.to);
+					// Use node name when alias found
+					if (matchingNode && matchingNode.alias !== matchingNode.name)
+						to = matchingNode.name;
+					return {
+						id: from + "-" + to,
+						source: from,
+						target: to,
+						sourceHandle: `${from}-source-${edge.fromAttribute}`,
+						targetHandle: `${to}-target-${edge.toAttribute}`,
 						label: edge.name,
 						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
@@ -329,8 +333,11 @@ const App = () => {
 			console.log("flowEdges");
 			console.log(flowEdges);
 			setEdges(flowEdges);
-			// Check missing Entities used in Refs
+			// Search for missing entities used in Refs
 			const nodesArray = [];
+			nodes.nodes.forEach(node => {
+				nodesArray.push(node.name);
+			});
 			nodes.nodes.forEach(node => {
 				nodesArray.push(node.alias);
 			});
@@ -341,10 +348,10 @@ const App = () => {
 					return;
 				}
 			});
-			// Check duplicate nodes
+			// Search for duplicate nodes
 			const s = hasDuplicates(nodes.nodes);
 			if (s.length > 0) {
-				setMatchResult("Error: Duplicate node \"" + s + "\" found");
+				setMatchResult("Error: Duplicate entity \"" + s + "\" found");
 				return;
 			}
 		} else {
