@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
 import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
@@ -15,36 +15,6 @@ import CustomNode from './components/CustomNode';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import DownloadButton from './components/DownloadButton';
 import { editorKeywords, editorOptions, languageDef, configuration } from './editor-config.js'
-
-const editorWillMount = (monaco) => {
-	console.log("editorWillMount")
-	//this.editor = monaco
-	if (!monaco.languages.getLanguages().some(({ id }) => id === 'eric')) {
-	  // Register a new language
-	  monaco.languages.register({ id: 'eric' })
-	  // Register a tokens provider for the language
-	  monaco.languages.setMonarchTokensProvider('eric', languageDef)
-	  // Set the editing configuration for the language
-	  monaco.languages.setLanguageConfiguration('eric', configuration)
-	  // Set Theme
-	  monaco.languages.registerCompletionItemProvider('eric', {
-		provideCompletionItems: (model, position) => {
-			const suggestions = [
-				...editorKeywords.map(k => {
-					return {
-						label: k,
-						kind: monaco.languages.CompletionItemKind.Keyword,
-						insertText: k,
-					};
-				})
-			];
-			return { suggestions: suggestions };
-		}
-	  })
-	  
-	}
-  }
-
 
 const { Link } = Typography;
 const { Header, Content } = Layout;
@@ -108,6 +78,40 @@ const App = () => {
 	const [code, setCode] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
+	const monacoRef = useRef(null);
+	const monacoEditorRef = useRef(null);
+
+	const editorWillMount = (monaco) => {
+		//this.editor = monaco
+		if (!monaco.languages.getLanguages().some(({ id }) => id === 'eric')) {
+			// Register a new language
+			monaco.languages.register({ id: 'eric' })
+			// Register a tokens provider for the language
+			monaco.languages.setMonarchTokensProvider('eric', languageDef)
+			// Set the editing configuration for the language
+			monaco.languages.setLanguageConfiguration('eric', configuration)
+			// Set Theme
+			monaco.languages.registerCompletionItemProvider('eric', {
+				provideCompletionItems: (model, position) => {
+					const suggestions = [
+						...editorKeywords.map(k => {
+							return {
+								label: k,
+								kind: monaco.languages.CompletionItemKind.Keyword,
+								insertText: k,
+							};
+						})
+					];
+					return { suggestions: suggestions };
+				}
+			})
+		}
+	}
+
+	const editorOnMount = (editor, monaco) => {
+			monacoRef.current = monaco;
+			monacoEditorRef.current = editor;
+	}
 
 	const [nodes, setNodes] = useState();
 	const [edges, setEdges] = useState();
@@ -310,6 +314,10 @@ const App = () => {
 
 		const result = g.match(newCode);
 		if (result.succeeded()) {
+
+			// delete existing markers for syntax errors
+			monacoRef.current.editor.setModelMarkers(monacoEditorRef.current.getModel(), 'msg', []);
+
 			setMatchResult(semantics(result).toString());
 			console.log("nodes");
 			const nodes = semanticsNodes(result).nodes();
@@ -380,6 +388,27 @@ const App = () => {
 				return;
 			}
 		} else {
+			console.log(result.shortMessage);
+			// try setting markers for syntax errors
+			try {
+				const failure = result.shortMessage;
+				const line = parseInt(failure.substring(5,failure.indexOf("col")-2)); 
+				const col = parseInt(failure.substring(failure.indexOf("col")+4, failure.indexOf(":"))); 
+				const message = failure.substring(failure.indexOf(":")+2); 
+				console.log("line: " + line);
+				console.log("col: " + col);
+				console.log("message: " + message);
+
+				monacoRef.current.editor.setModelMarkers(monacoEditorRef.current.getModel(), 'msg', [{
+					startLineNumber: line,
+					startColumn: col,
+					endLineNumber: line,
+					endColumn: col+5,
+					message: message,
+					severity: monacoRef.current.MarkerSeverity.Error,
+				}]) 
+			} catch (err) {}
+			//set match result
 			setMatchResult(result.shortMessage);
 		}
 	};
@@ -414,6 +443,7 @@ const App = () => {
 							onChange={handleEditorChange}
 							language="eric"
 							beforeMount={editorWillMount}
+							onMount={editorOnMount}
 							/>
 						{/* Textfeld für die Anzeige des matchResult */}
 						<div style={{ marginTop: '24px' }}>
