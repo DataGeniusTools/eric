@@ -14,6 +14,36 @@ import SimpleFloatingEdge from './SimpleFloatingEdge';
 import CustomNode from './components/CustomNode';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import DownloadButton from './components/DownloadButton';
+import { editorKeywords, editorOptions, languageDef, configuration } from './editor-config.js'
+
+const editorWillMount = (monaco) => {
+	console.log("editorWillMount")
+	//this.editor = monaco
+	if (!monaco.languages.getLanguages().some(({ id }) => id === 'eric')) {
+	  // Register a new language
+	  monaco.languages.register({ id: 'eric' })
+	  // Register a tokens provider for the language
+	  monaco.languages.setMonarchTokensProvider('eric', languageDef)
+	  // Set the editing configuration for the language
+	  monaco.languages.setLanguageConfiguration('eric', configuration)
+	  // Set Theme
+	  monaco.languages.registerCompletionItemProvider('eric', {
+		provideCompletionItems: (model, position) => {
+			const suggestions = [
+				...editorKeywords.map(k => {
+					return {
+						label: k,
+						kind: monaco.languages.CompletionItemKind.Keyword,
+						insertText: k,
+					};
+				})
+			];
+			return { suggestions: suggestions };
+		}
+	  })
+	  
+	}
+  }
 
 
 const { Link } = Typography;
@@ -78,11 +108,6 @@ const App = () => {
 	const [code, setCode] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
-	const editorOptions = {
-		wordWrap: 'on',
-		tabSize: 2,
-		minimap: { enabled: false },
-	};
 
 	const [nodes, setNodes] = useState();
 	const [edges, setEdges] = useState();
@@ -384,11 +409,12 @@ const App = () => {
 						{/* Monaco Editor */}
 						<MonacoEditor
 							height="88%"
-							defaultLanguage="text"
 							value={code}
 							options={editorOptions}
 							onChange={handleEditorChange}
-						/>
+							language="eric"
+							beforeMount={editorWillMount}
+							/>
 						{/* Textfeld für die Anzeige des matchResult */}
 						<div style={{ marginTop: '24px' }}>
 							<Input.TextArea
