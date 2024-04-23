@@ -1,10 +1,9 @@
 import React, { useState, useCallback, useRef } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
-import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
+import { GithubOutlined, ForkOutlined, BorderOuterOutlined, SaveOutlined, FolderOpenOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
-import ReactFlow, { ReactFlowProvider, applyNodeChanges, applyEdgeChanges, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow } from 'react-flow-renderer';
-//addEdge
+import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -18,6 +17,7 @@ import { editorKeywords, editorOptions, languageDef, configuration } from './edi
 
 const { Link } = Typography;
 const { Header, Content } = Layout;
+const flowKey = 'eric-flow';
 const nodeTypes = {
 	custom: CustomNode,
 };
@@ -113,16 +113,10 @@ const App = () => {
 			monacoEditorRef.current = editor;
 	}
 
-	const [nodes, setNodes] = useState();
-	const [edges, setEdges] = useState();
-	const onNodesChange = useCallback(
-		(changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-		[],
-	);
-	const onEdgesChange = useCallback(
-		(changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
-		[],
-	);
+	const [nodes, setNodes, onNodesChange] = useNodesState();
+	const [edges, setEdges, onEdgesChange] = useEdgesState();
+	const [rfInstance, setRfInstance] = useState(null);
+	//const { setViewport } = useReactFlow();
 	/*
 	const onConnect = useCallback(
 		(params) =>
@@ -147,8 +141,33 @@ const App = () => {
 			window.requestAnimationFrame(() => fitView());
 		  });
 		},
-		[nodes, edges, fitView]
+		[nodes, edges, fitView, setNodes, setEdges]
 	  );
+
+	const onSave = useCallback(() => {
+		if (rfInstance) {
+			const flow = rfInstance.toObject();
+			localStorage.setItem(flowKey, JSON.stringify(flow));
+		}
+		}, [rfInstance]
+	);
+
+	const onRestore = useCallback(() => {
+		const restoreFlow = async () => {
+			const flow = JSON.parse(localStorage.getItem(flowKey));
+
+			if (flow) {
+			//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+			setNodes(flow.nodes || []);
+			setEdges(flow.edges || []);
+			//setViewport({ x, y, zoom });
+			fitView();
+			}
+		};
+
+		restoreFlow();
+	//}, [setNodes, setViewport]);
+	}, [setNodes, setEdges, fitView]);
 
 	// Minimap support for Toolbar
 	const [showMiniMap, setShowMiniMap] = useState(false);
@@ -462,6 +481,7 @@ const App = () => {
 							onNodesChange={onNodesChange}
 							edges={edges}
 							onEdgesChange={onEdgesChange}
+							onInit={setRfInstance}
 							//onConnect={onConnect}
 							fitView
 							nodeTypes={nodeTypes}
@@ -477,6 +497,12 @@ const App = () => {
 									<BorderOuterOutlined />
 								</ControlButton>
 								<DownloadButton />
+								<ControlButton title="Save graph to local storage" onClick={onSave}>
+									<SaveOutlined />
+								</ControlButton>
+								<ControlButton title="Restore graph from local storage" onClick={onRestore}>
+									<FolderOpenOutlined />
+								</ControlButton>
 							</Controls>
 							{showMiniMap && <MiniMap />}
 						</ReactFlow>
