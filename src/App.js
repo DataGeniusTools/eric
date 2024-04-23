@@ -17,7 +17,8 @@ import { editorKeywords, editorOptions, languageDef, configuration } from './edi
 
 const { Link } = Typography;
 const { Header, Content } = Layout;
-const flowKey = 'eric-flow';
+const localStoragKeyFlow = 'eric-flow';
+const localStoragKeyDSL = 'eric-dsl';
 const nodeTypes = {
 	custom: CustomNode,
 };
@@ -147,14 +148,18 @@ const App = () => {
 	const onSave = useCallback(() => {
 		if (rfInstance) {
 			const flow = rfInstance.toObject();
-			localStorage.setItem(flowKey, JSON.stringify(flow));
+			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
+			const dsl = code;
+			localStorage.setItem(localStoragKeyDSL, dsl);
 		}
-		}, [rfInstance]
+		}, [rfInstance, code]
 	);
 
 	const onRestore = useCallback(() => {
 		const restoreFlow = async () => {
-			const flow = JSON.parse(localStorage.getItem(flowKey));
+			const flow = JSON.parse(localStorage.getItem(localStoragKeyFlow));
+			const dsl = localStorage.getItem(localStoragKeyDSL);
+			setCode(dsl);
 
 			if (flow) {
 			//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -167,7 +172,7 @@ const App = () => {
 
 		restoreFlow();
 	//}, [setNodes, setViewport]);
-	}, [setNodes, setEdges, fitView]);
+	}, [setNodes, setEdges, fitView, setCode]);
 
 	// Minimap support for Toolbar
 	const [showMiniMap, setShowMiniMap] = useState(false);
