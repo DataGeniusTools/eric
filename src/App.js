@@ -355,14 +355,14 @@ const App = () => {
 			monacoRef.current.editor.setModelMarkers(monacoEditorRef.current.getModel(), 'msg', []);
 
 			setMatchResult(semantics(result).toString());
-			console.log("nodes");
-			const nodes = semanticsNodes(result).nodes();
-			console.log(nodes);
-			console.log("edges");
-			const edges = semanticsEdges(result).edges();
-			console.log(edges);
+			console.log("semNodes");
+			const semNodes = semanticsNodes(result).nodes();
+			console.log(semNodes);
+			console.log("semEdges");
+			const semEdges = semanticsEdges(result).edges();
+			console.log(semEdges);
 			const flowNodes =
-				nodes.nodes.map((node, i) => {
+				semNodes.nodes.map((node, i) => {
 					return {
 						id: node.name,
 						type: 'custom',
@@ -375,16 +375,16 @@ const App = () => {
 			setNodes(flowNodes);
 			// todo: keep position if nodes already exist
 			const flowEdges =
-				edges.edges.map((edge, i) => {
+				semEdges.edges.map((edge, i) => {
 					var from = edge.from;
 					// Find node in nodes list
-					var matchingNode = nodes.nodes.find(node => node.alias === edge.from);
+					var matchingNode = semNodes.nodes.find(node => node.alias === edge.from);
 					// Use node name when alias found
 					if (matchingNode && matchingNode.alias !== matchingNode.name)
 						from = matchingNode.name;
 					var to = edge.to;
 					// Find node in nodes list
-					matchingNode = nodes.nodes.find(node => node.alias === edge.to);
+					matchingNode = semNodes.nodes.find(node => node.alias === edge.to);
 					// Use node name when alias found
 					if (matchingNode && matchingNode.alias !== matchingNode.name)
 						to = matchingNode.name;
@@ -404,13 +404,13 @@ const App = () => {
 			setEdges(flowEdges);
 			// Search for missing entities used in Refs
 			const nodesArray = [];
-			nodes.nodes.forEach(node => {
+			semNodes.nodes.forEach(node => {
 				nodesArray.push(node.name);
 			});
-			nodes.nodes.forEach(node => {
+			semNodes.nodes.forEach(node => {
 				nodesArray.push(node.alias);
 			});
-			edges.edges.forEach(edge => {
+			semEdges.edges.forEach(edge => {
 				if (!nodesArray.includes(edge.from) || !nodesArray.includes(edge.to)) {
 					const missing = !nodesArray.includes(edge.from) ? edge.from : edge.to;
 					setMatchResult("Error: Invalid Entity \"" + missing + "\" found in \"Ref " + edge.from + " > " + edge.to + "\"");
@@ -418,7 +418,7 @@ const App = () => {
 				}
 			});
 			// Search for duplicate nodes
-			const s = hasDuplicates(nodes.nodes);
+			const s = hasDuplicates(semNodes.nodes);
 			if (s.length > 0) {
 				setMatchResult("Error: Duplicate entity \"" + s + "\" found");
 				return;
