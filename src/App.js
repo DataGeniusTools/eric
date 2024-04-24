@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
-import { GithubOutlined, ForkOutlined, BorderOuterOutlined, SaveOutlined, FolderOpenOutlined } from '@ant-design/icons';
+import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
 import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
@@ -127,6 +127,39 @@ const App = () => {
 		[]
 	  );
 	  */
+
+	const saveToLocalStorage = useCallback(() => {
+		console.log("saveToLocalStorage");
+		if (rfInstance) {
+			console.log("go...");
+			// save flow 
+			const flow = rfInstance.toObject();
+			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
+			// save dsl
+			const dsl = code;
+			localStorage.setItem(localStoragKeyDSL, dsl);
+		}
+	}, [code, rfInstance]);
+
+	const readFromLocalStorage = useCallback(() => {
+		const restoreFlow = async () => {
+			// read flow
+			const flow = JSON.parse(localStorage.getItem(localStoragKeyFlow));
+			// read dsl
+			const dsl = localStorage.getItem(localStoragKeyDSL);
+			setCode(dsl);
+
+			if (flow) {
+				//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+				setNodes(flow.nodes || []);
+				setEdges(flow.edges || []);
+				//setViewport({ x, y, zoom });
+				fitView();
+			}
+		};
+		restoreFlow();
+	}, [setNodes, setEdges, fitView]);
+
 	const onLayout = useCallback(
 		({ direction, useInitialNodes = false }) => {
 		  const opts = { 'elk.direction': direction, ...elkOptions };
@@ -140,39 +173,14 @@ const App = () => {
 			setEdges(layoutedEdges);
 	
 			window.requestAnimationFrame(() => fitView());
-		  });
+
+			saveToLocalStorage();
+		});
+
 		},
-		[nodes, edges, fitView, setNodes, setEdges]
+		[nodes, edges, fitView, setNodes, setEdges, saveToLocalStorage]
 	  );
 
-	const onSave = useCallback(() => {
-		if (rfInstance) {
-			const flow = rfInstance.toObject();
-			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
-			const dsl = code;
-			localStorage.setItem(localStoragKeyDSL, dsl);
-		}
-		}, [rfInstance, code]
-	);
-
-	const onRestore = useCallback(() => {
-		const restoreFlow = async () => {
-			const flow = JSON.parse(localStorage.getItem(localStoragKeyFlow));
-			const dsl = localStorage.getItem(localStoragKeyDSL);
-			setCode(dsl);
-
-			if (flow) {
-			//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
-			setNodes(flow.nodes || []);
-			setEdges(flow.edges || []);
-			//setViewport({ x, y, zoom });
-			fitView();
-			}
-		};
-
-		restoreFlow();
-	//}, [setNodes, setViewport]);
-	}, [setNodes, setEdges, fitView, setCode]);
 
 	// Minimap support for Toolbar
 	const [showMiniMap, setShowMiniMap] = useState(false);
@@ -180,7 +188,11 @@ const App = () => {
 		setShowMiniMap(!showMiniMap);
 	};
 	const handleEditorChange = (newCode, event) => {
+		
 		setCode(newCode);
+		
+		saveToLocalStorage();
+
 		const g = ohm.grammar(grammar);
 		/* Semantic for toString */
 		const semantics = g.createSemantics().addOperation('toString', {
@@ -502,12 +514,6 @@ const App = () => {
 									<BorderOuterOutlined />
 								</ControlButton>
 								<DownloadButton />
-								<ControlButton title="Save graph to local storage" onClick={onSave}>
-									<SaveOutlined />
-								</ControlButton>
-								<ControlButton title="Restore graph from local storage" onClick={onRestore}>
-									<FolderOpenOutlined />
-								</ControlButton>
 							</Controls>
 							{showMiniMap && <MiniMap />}
 						</ReactFlow>
