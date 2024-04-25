@@ -355,23 +355,28 @@ const App = () => {
 			monacoRef.current.editor.setModelMarkers(monacoEditorRef.current.getModel(), 'msg', []);
 
 			setMatchResult(semantics(result).toString());
-			console.log("semNodes");
+			//console.log("semNodes");
 			const semNodes = semanticsNodes(result).nodes();
-			console.log(semNodes);
-			console.log("semEdges");
+			//console.log(semNodes);
+			//console.log("semEdges");
 			const semEdges = semanticsEdges(result).edges();
-			console.log(semEdges);
+			//console.log(semEdges);
 			const flowNodes =
 				semNodes.nodes.map((node, i) => {
+					// Find node in existing nodes of the flow/graph (to get the current position because this should stay the same)
+					var matchingNode = nodes && nodes.find(nodeFlow => node.alias === nodeFlow.id || node.name === nodeFlow.id);
 					return {
 						id: node.name,
 						type: 'custom',
 						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
-						position: { x: 0, y: i * 100 }
+						position: { 
+							x: matchingNode ? matchingNode.position.x : 0, 
+							y: matchingNode ? matchingNode.position.y : i * 75 
+						}
 					}
 				});
-			console.log("flowNodes");
-			console.log(flowNodes);
+			//console.log("flowNodes");
+			//console.log(flowNodes);
 			setNodes(flowNodes);
 			// todo: keep position if nodes already exist
 			const flowEdges =
@@ -399,8 +404,8 @@ const App = () => {
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
 					}
 				});
-			console.log("flowEdges");
-			console.log(flowEdges);
+			//console.log("flowEdges");
+			//console.log(flowEdges);
 			setEdges(flowEdges);
 			// Search for missing entities used in Refs
 			const nodesArray = [];
@@ -423,6 +428,7 @@ const App = () => {
 				setMatchResult("Error: Duplicate entity \"" + s + "\" found");
 				return;
 			}
+
 		} else {
 			console.log(result.shortMessage);
 			// try setting markers for syntax errors
