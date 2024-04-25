@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
 import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
@@ -159,6 +159,11 @@ const App = () => {
 		};
 		restoreFlow();
 	}, [setNodes, setEdges, fitView]);
+
+	// read only once after init from local storage (dsl and flow)
+	useEffect(() => {
+		readFromLocalStorage();
+	}, [readFromLocalStorage]);
 
 	const onLayout = useCallback(
 		({ direction, useInitialNodes = false }) => {
@@ -428,6 +433,8 @@ const App = () => {
 				setMatchResult("Error: Duplicate entity \"" + s + "\" found");
 				return;
 			}
+
+			saveToLocalStorage();
 
 		} else {
 			console.log(result.shortMessage);
