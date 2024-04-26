@@ -3,7 +3,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { Tooltip, Input, Layout, Space, Typography } from 'antd';
 import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
-import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState } from 'react-flow-renderer';
+import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState, applyNodeChanges } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
@@ -114,9 +114,10 @@ const App = () => {
 			monacoEditorRef.current = editor;
 	}
 
-	const [nodes, setNodes, onNodesChange] = useNodesState();
+	const [nodes, setNodes] = useNodesState();
 	const [edges, setEdges, onEdgesChange] = useEdgesState();
 	const [rfInstance, setRfInstance] = useState(null);
+
 	//const { setViewport } = useReactFlow();
 	/*
 	const onConnect = useCallback(
@@ -159,6 +160,13 @@ const App = () => {
 		};
 		restoreFlow();
 	}, [setNodes, setEdges, fitView]);
+
+	// save to local storage after each change in flow (e.g. nodes moved)
+	const onNodesChange = useCallback(
+		(changes) => {
+			setNodes((nds) => applyNodeChanges(changes, nds));
+			saveToLocalStorage();
+	}, [setNodes, saveToLocalStorage]);
 
 	// read only once after init from local storage (dsl and flow)
 	useEffect(() => {
