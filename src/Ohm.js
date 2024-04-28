@@ -8,27 +8,41 @@ Model {
 		| RefDeclaration
 
 	EntityDeclaration
-		= "Entity" ident ("." ident)? ("as" ident)? Attributes*
+		= "Entity" Name ("as" ident)? Attributes*
 
 	Attributes
         = "{" Attribute* "}" 
 
 	Attribute
-		= ident (datatype)? ("[pk]")?
+		= Name (datatype)? ("[pk]")?
 
 	RefDeclaration
 		= "Ref" RefElement
 
-	RefElement                             
-		= ident "." ident ("." ident)? ">" ident "." ident ("." ident)?
+	RefElement
+		= RefEntity
+		| RefAttribute
+
+	RefEntity
+		= Name ">" Name
+
+	RefAttribute
+		= Name ("." Name)? ">" Name ("." Name)?
 		
+	Name
+		= quotedident
+		| ident
+	  
 	datatype
 		= "date"
 		| "double"
 		| "int"
 		| "string"
 
-	ident  (an identifier)
+	quotedident
+		= "\\"" (~("\\"") any)* "\\""
+
+	ident (an identifier)
 		= letter (alnum | "_")*
 
 	// the two types of comments

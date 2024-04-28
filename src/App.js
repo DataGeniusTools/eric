@@ -215,42 +215,42 @@ const App = () => {
 			Statement(e) {
 				return e.toString();
 			},
-			EntityDeclaration(entity, ident1, dot, ident2, as, alias, attributes) {
-				var ident = ident1.toString();
-				if (ident2.numChildren > 0)
-					ident += "." + ident2.toString();
+			EntityDeclaration(entity, name, as, alias, attributes) {
+				var name1 = name.toString();
 				if (as.numChildren > 0)
-					ident += " as " + alias.toString()[0]
-				return  "Entity " + ident + attributes.toString();
+					name1 += " as " + alias.toString()[0];
+				return  "Entity " + name1 + attributes.toString();
 			},
 			Attributes(open, e, close) {
 				return " { " + e.toString() + " }";
 			},
-			Attribute(e, type, pk) {
+			Attribute(name, type, pk) {
 				if (pk.numChildren > 0)
-					return e.toString() + "🔑 " + type.toString();
+					return name.toString() + "🔑 " + type.toString();
 				else
-					return e.toString() + " " + type.toString();
+					return name.toString() + " " + type.toString();
 			},
 			RefDeclaration(ref, refelement) {
 				return "Ref " + refelement.toString();
 			},
-			RefElement(ident11, dot11, ident12, dot12, ident13, greater, ident21, dot21, ident22, dot22, ident23) {
-				var ident1 = ident11.toString();
-				if (dot12.numChildren > 0)
-					ident1 += "." + ident12.toString() + "." + ident13.toString();
-				else
-					ident1 += "." + ident12.toString();
-				var ident2 = ident21.toString();
-				if (dot22.numChildren > 0)
-					ident2 += "." + ident22.toString() + "." + ident23.toString();
-				else
-					ident2 += "." + ident22.toString();
-				return ident1 + " → " + ident2;
+			RefElement(e) {
+				return e.toString();
+			},
+			RefEntity(name1, greater, name2) {
+				return name1.toString() + " → " + name2.toString();
+			},
+			RefAttribute(name11, dot11, name12, greater, name21, dot21, name22) {
+				return name11.toString() + "." + name12.toString() + " → " + name21.toString() + "." + name22.toString();
+			},
+			Name(e) {
+				return e.sourceString;
 			},
 			datatype(e) {
 				return e.toString();
 			},
+			quotedident(quote1, name, quote2) {
+				return "\"" + name.toString() + "\"";
+		    },
 			ident(letter, alnum) {
 				return this.sourceString;
 			},
@@ -273,15 +273,13 @@ const App = () => {
 					return e.nodes();
 				}
 			},
-			EntityDeclaration(entity, ident1, dot, ident2, as, alias, attributes) {
-				var name = ident1.sourceString;
-				if (dot.numChildren > 0)
-					name += ident2.sourceString;
-				var aliasName = name;
-				if (as.numChildren > 0)
+			EntityDeclaration(entity, name, as, alias, attributes) {
+				var aliasName = name.nodes();
+				if (alias.numChildren > 0){
 					aliasName = alias.nodes()[0];
+				}
 				return {
-					name: name,
+					name: name.nodes(),
 					alias: aliasName,
 					attributes: attributes.nodes()[0],
 					hasAttributes: attributes.numChildren > 0 ? 'Y' : 'N'
@@ -290,15 +288,21 @@ const App = () => {
 			Attributes(open, e, close) {
 				return e.nodes();
 			},
-			Attribute(e, type, pk) {
+			Attribute(name, type, pk) {
 				return {
-					name: e.nodes(),
+					name: name.nodes(),
 					datatype: type.nodes()[0],
 					isPrimaryKey: pk.numChildren > 0 ? 'Y' : 'N'
 				};
 			},
+			Name(e) {
+				return e.nodes();
+			},
 			datatype(e) {
 				return e.nodes();
+			},
+			quotedident(quote1, name, quote2) {
+				return name.sourceString;
 			},
 			ident(letter, alnum) {
 				return this.sourceString;
@@ -325,30 +329,32 @@ const App = () => {
 			RefDeclaration(ref, refelement) {
 				return refelement.edges();
 			},
-			RefElement(ident11, dot11, ident12, dot12, ident13, greater, ident21, dot21, ident22, dot22, ident23) {
-				var from = ident11.edges();
-				var fromAttribute = ident12.edges();
-				if (dot12.numChildren > 0) {
-					from += "." + ident12.edges();
-					fromAttribute = ident13.edges();
-				}
-				var to = ident21.edges();
-				var toAttribute = ident22.edges();
-				if (dot22.numChildren > 0) {
-					to += "." + ident22.edges();
-					toAttribute = ident23.edges();
-				}
+			RefElement(e) {
+				return e.edges();
+			},
+			RefEntity(entity1, greater, entity2) {
 				return {
-					from: from,
-					fromAttribute: fromAttribute,
-					to: to,
-					toAttribute: toAttribute,
+					from: entity1.edges(),
+					to: entity2.edges(),
+					type: 'EntityRef'
+					//direction: greater
+				};
+			},
+			RefAttribute(entity1, dot11, attribute1, greater, entity2, dot21, attribute2) {
+				return {
+					from: entity1.edges(),
+					fromAttribute: attribute1.edges(),
+					to: entity2.edges(),
+					toAttribute: attribute2.edges(),
 					type: 'AttributeRef'
 					//direction: greater
 				};
 			},
 			datatype(e) {
 				return e.edges();
+			},
+			quotedident(quote1, name, quote2) {
+				return name.sourceString;
 			},
 			ident(letter, alnum) {
 				return this.sourceString;
