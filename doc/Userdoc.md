@@ -15,7 +15,7 @@ An entity is marked with the key word Entity followed by a name:
 Entity Person
 ```
 
-<img src="Entity.png" alt="Entity" width="222" height="55" style="text-align: center;"/>
+<img src="Entity.png" alt="Entity" width="226" height="54" style="text-align: center;"/>
 
 This is the simplest form of an entity. Entities are displayed as nodes in ERic's graph. You can add an optional alias that can be used to reference the entity:
 
@@ -33,19 +33,19 @@ Entity Person {
 }
 ```
 
-<img src="EntityAttributes.png" alt="EntityAttributes" width="240" height="118" style="text-align: center;"/>
+<img src="EntityAttributes.png" alt="EntityAttributes" width="235" height="153" style="text-align: center;"/>
 
-And finally you can add data types to the attributes and mark primary keys with a "[pk]":
+And finally you can add data types to the attributes and mark primary keys with a "*":
 
 ```
 Entity Person {
-  id int [pk]
+  id int *
   fname string
   lname string
 }
 ```
 
-<img src="EntityComplete.png" alt="EntityComplete" width="229" height="115" style="text-align: center;"/>
+<img src="EntityComplete.png" alt="EntityComplete" width="227" height="137" style="text-align: center;"/>
 
 ERic supports the following data types
 
@@ -54,24 +54,67 @@ ERic supports the following data types
 - int
 - string
 
-With keyword Ref you can model "many to one" relations between two entities like
+With keyword Ref you can model "many to one" relations between two entities either without or with specifying the attributes in charge like
 
 ```
-Entity A {
-  id int [pk]
+Entity A
+
+Entity B
+
+Ref A > B
+
+Entity X {
+  id int *
   foreignKey int
 }
 
-Entity B {
-  id int [pk]
+Entity Y {
+  id int *
 }
 
-Ref A.foreignKey > B.id
+Ref X.foreignKey > Y.id
 ```
 
-This will create a "one to many" connection in ERic's graph.
+This will create "one to many" connections in ERic's graph based on entities or entity attributes.
 
-<img src="Ref.png" alt="Ref" width="503" height="136" style="text-align: center;"/>
+<img src="Ref.png" alt="Ref" width="488" height="186" style="text-align: center;"/>
+
+## Quotes
+
+More complex names containing spaces and other special characters can be enclosed in double quotes.
+
+```
+Entity "My special entity"
+
+Entity "Very long name with spaces, dots and braces (x.x)" as V
+```
+
+For such names, it is recommended to use aliases to reference the entity.
+
+```
+Entity "Core.Person" as Per
+
+Entity "Core.Order" as Ord
+
+Ref Ord > Per
+```
+
+Alternatively, the following references would be equivalent
+
+    Ref "Core.Order" > Per
+    Ref Ord > "Core.Person"
+    Ref "Core.Order" > "Core.Person"
+
+Quotes can also bei used to create complex attribute names like:
+
+```
+Entity "Core.Person" as Per {
+	id int
+	"first name" string
+	"last name" string
+	birth date
+}
+```
 
 ## Grammar
 
@@ -84,24 +127,10 @@ For names of entities and attributes you can use lower case or uppercase letter 
 - Entity order_line
 - Entity abc_2_XYZ
 
-### Schemas
+Quotes can be used to create entities and attributes with special characters like spaces or dots in their names:
 
-Entity names can be preceded by a schema name. A schema name is optional and is separated from the entity name using a dot '.' like
-
-```
-Entity Order.OrderHeader {
-  id int [pk]
-  customerId int
-  orderDate date
-}
-
-Entity Order.OrderLine {
-  position int [pk]
-  orderId int
-  quantiy int
-  articleId int
-}
-```
+- Entity "Core.Person"
+- Entity "My First Entity"
 
 ### Refs
 
@@ -125,19 +154,22 @@ Ref C.address_id > Address.id
 
 or
 
+Ref Customer.address_id > A.id
+
+or
+
 Ref C.address_id > A.id
 ```
 
-The Ref definition is composed from two entities separated by the greater as symbol '>'. The entity is specified by two or three names separated by a dot '.'
+The Ref definition is composed from two entities separated by the greater as symbol '>'. The entity is specified by its name or its alias optionally followed by an attribute separated by a dot:
 
-1. an optional schema
 1. an entity name
 1. an attribute name
 
 like in
 
+- Ref OrderLine > Order
 - Ref Customer.id > Address.id
-- Ref Order.OrderLine.orderId > Order.OrderHeader.id
 
 ### Comments
 
@@ -146,7 +178,7 @@ You can use two kind of comments inside you ER definition. Single line comments 
 ```
 // the person
 Entity Person {
-  id int [pk]     // the person id
+  id int *     // the person id
   fname string    // the person first name
   lname string    // the person last name
 }
@@ -159,7 +191,7 @@ Multi line comments are opened with '/\*' and closed by '\*/'
  * the person
 *****************/
 Entity Person {
-  id int [pk]     // the person id
+  id int *     // the person id
   fname string    // the person first name
   lname string    // the person last name
 }

@@ -14,7 +14,7 @@ Model {
         = "{" Attribute* "}" 
 
 	Attribute
-		= Name (datatype)? ("[pk]")?
+		= Name (datatype)? ("*")?
 
 	RefDeclaration
 		= "Ref" RefElement
