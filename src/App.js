@@ -130,9 +130,9 @@ const App = () => {
 	  */
 
 	const saveToLocalStorage = useCallback(() => {
-		console.log("saveToLocalStorage");
+		// console.log("saveToLocalStorage");
 		if (rfInstance) {
-			console.log("go...");
+			// console.log("go...");
 			// save flow 
 			const flow = rfInstance.toObject();
 			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
@@ -335,7 +335,9 @@ const App = () => {
 			RefEntity(entity1, greater, entity2) {
 				return {
 					from: entity1.edges(),
+					fromAttribute: null,
 					to: entity2.edges(),
+					toAttribute: null,
 					type: 'EntityRef'
 					//direction: greater
 				};
@@ -412,12 +414,19 @@ const App = () => {
 					// Use node name when alias found
 					if (matchingNode && matchingNode.alias !== matchingNode.name)
 						to = matchingNode.name;
-					return {
+					return edge.type === 'EntityRef' ? {
 						id: from + "-" + to,
 						source: from,
 						target: to,
-						sourceHandle: `${from}-source-${edge.fromAttribute}`,
-						targetHandle: `${to}-target-${edge.toAttribute}`,
+						label: edge.name,
+						//type: 'floating'
+						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
+					} : {
+						id: from + "-" + to,
+						source: from,
+						target: to,
+						sourceHandle: `${edge.from}-source-${edge.fromAttribute}`,
+						targetHandle: `${edge.to}-target-${edge.toAttribute}`,
 						label: edge.name,
 						//type: 'floating'
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
