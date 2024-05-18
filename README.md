@@ -19,27 +19,27 @@ This diagram above was generated using the definiton below:
 
 ```
 Entity Customer {
-  id int [pk]
+  id int *
   fname string
   lname string
   addressId int
 }
 
 Entity Order {
-  id int [pk]
+  id int *
   customerId int
   orderDate date
 }
 
 Entity OrderLine {
-  position int [pk]
+  position int *
   orderId int
   quantiy int
   articleId int
 }
 
 Entity Address {
-  id int [pk]
+  id int *
   zip string
   street string
   city string  
