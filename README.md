@@ -2,9 +2,9 @@
 
 ERic is an interactive Entity Relationship (ER) creator tool. You can use it to create your ER diagrams using textual descriptions and let ERic visualize the resulting ER diagram.
 
-It is quite similar to [DBML](https://dbml.dbdiagram.io/) but describes Entities more generic (not as technical tables).
+It is quite similar to <a href="https://dbml.dbdiagram.io/" target="_blank">DBML</a> but describes Entities more generic (not as technical tables).
 
-You can find a demo environment always running the current stable version at [ERic Demo](https://demoeric.netlify.app/).
+You can find a demo environment always running the current stable version at <a href="https://demoeric.netlify.app/" target="_blank">ERic Demo</a>.
 
 ---
 **NOTE**
@@ -52,4 +52,4 @@ Ref OrderLine.orderId > Order.id
 Ref Customer.addressId > Address.id
 ```
 
-You can find a tutorial and the complete description of ERic's grammar in the [user manual here](doc/Userdoc.md).
+You can find a tutorial and the complete description of ERic's grammar in the <a href="doc/Userdoc.md" target="_blank">user manual here</a>.
