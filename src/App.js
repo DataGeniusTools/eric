@@ -30,38 +30,38 @@ const elkOptions = {
 	'elk.algorithm': 'layered',
 	'elk.layered.spacing.nodeNodeBetweenLayers': '100',
 	'elk.spacing.nodeNode': '80',
-  };
+};
 const getLayoutedElements = (nodes, edges, options = {}) => {
 	const isHorizontal = options?.['elk.direction'] === 'RIGHT';
 	const graph = {
-	  id: 'root',
-	  layoutOptions: options,
-	  children: nodes.map((node) => ({
-		...node,
-		// Adjust the target and source handle positions based on the layout
-		// direction.
-		targetPosition: isHorizontal ? 'left' : 'top',
-		sourcePosition: isHorizontal ? 'right' : 'bottom',
-		// Hardcode a width and height for elk to use when layouting.
-		width: 150,
-		height: 50,
-	  })),
-	  edges: edges,
+		id: 'root',
+		layoutOptions: options,
+		children: nodes.map((node) => ({
+			...node,
+			// Adjust the target and source handle positions based on the layout
+			// direction.
+			targetPosition: isHorizontal ? 'left' : 'top',
+			sourcePosition: isHorizontal ? 'right' : 'bottom',
+			// Hardcode a width and height for elk to use when layouting.
+			width: 150,
+			height: 50,
+		})),
+		edges: edges,
 	};
 
 	return elk
-    .layout(graph)
-    .then((layoutedGraph) => ({
-      nodes: layoutedGraph.children.map((node) => ({
-        ...node,
-        // React Flow expects a position property on the node instead of `x`
-        // and `y` fields.
-        position: { x: node.x, y: node.y },
-      })),
+		.layout(graph)
+		.then((layoutedGraph) => ({
+			nodes: layoutedGraph.children.map((node) => ({
+				...node,
+				// React Flow expects a position property on the node instead of `x`
+				// and `y` fields.
+				position: { x: node.x, y: node.y },
+			})),
 
-      edges: layoutedGraph.edges,
-    }))
-    .catch(console.error);
+			edges: layoutedGraph.edges,
+		}))
+		.catch(console.error);
 };
 
 function hasDuplicates(array) {
@@ -110,8 +110,8 @@ const App = () => {
 	}
 
 	const editorOnMount = (editor, monaco) => {
-			monacoRef.current = monaco;
-			monacoEditorRef.current = editor;
+		monacoRef.current = monaco;
+		monacoEditorRef.current = editor;
 	}
 
 	const [nodes, setNodes] = useNodesState();
@@ -166,7 +166,7 @@ const App = () => {
 		(changes) => {
 			setNodes((nds) => applyNodeChanges(changes, nds));
 			saveToLocalStorage();
-	}, [setNodes, saveToLocalStorage]);
+		}, [setNodes, saveToLocalStorage]);
 
 	// read only once after init from local storage (dsl and flow)
 	useEffect(() => {
@@ -175,24 +175,24 @@ const App = () => {
 
 	const onLayout = useCallback(
 		({ direction, useInitialNodes = false }) => {
-		  const opts = { 'elk.direction': direction, ...elkOptions };
-		  const ns = nodes;
-		  const es = edges;
-		  //const ns = useInitialNodes ? initialNodes : nodes;
-		  //const es = useInitialNodes ? initialEdges : edges;
-	
-		  getLayoutedElements(ns, es, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-			setNodes(layoutedNodes);
-			setEdges(layoutedEdges);
-	
-			window.requestAnimationFrame(() => fitView());
+			const opts = { 'elk.direction': direction, ...elkOptions };
+			const ns = nodes;
+			const es = edges;
+			//const ns = useInitialNodes ? initialNodes : nodes;
+			//const es = useInitialNodes ? initialEdges : edges;
 
-			saveToLocalStorage();
-		});
+			getLayoutedElements(ns, es, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+				setNodes(layoutedNodes);
+				setEdges(layoutedEdges);
+
+				window.requestAnimationFrame(() => fitView());
+
+				saveToLocalStorage();
+			});
 
 		},
 		[nodes, edges, fitView, setNodes, setEdges, saveToLocalStorage]
-	  );
+	);
 
 
 	// Minimap support for Toolbar
@@ -201,9 +201,9 @@ const App = () => {
 		setShowMiniMap(!showMiniMap);
 	};
 	const handleEditorChange = (newCode, event) => {
-		
+
 		setCode(newCode);
-		
+
 		saveToLocalStorage();
 
 		const g = ohm.grammar(grammar);
@@ -219,7 +219,7 @@ const App = () => {
 				var name1 = name.toString();
 				if (as.numChildren > 0)
 					name1 += " as " + alias.toString()[0];
-				return  "Entity " + name1 + attributes.toString();
+				return "Entity " + name1 + attributes.toString();
 			},
 			Attributes(open, e, close) {
 				return " { " + e.toString() + " }";
@@ -230,8 +230,11 @@ const App = () => {
 				else
 					return name.toString() + " " + type.toString();
 			},
-			RefDeclaration(ref, refelement) {
-				return "Ref " + refelement.toString();
+			RefDeclaration(ref, refelement, refName) {
+				if (refName.numChildren > 0)
+					return "Ref " + refelement.toString() + " [ " + refName.toString() + " ]";
+				else
+					return "Ref " + refelement.toString();
 			},
 			RefElement(e) {
 				return e.toString();
@@ -242,6 +245,9 @@ const App = () => {
 			RefAttribute(name11, dot11, name12, greater, name21, dot21, name22) {
 				return name11.toString() + "." + name12.toString() + " → " + name21.toString() + "." + name22.toString();
 			},
+			RefName(as, name) {
+				return name.sourceString;
+			},
 			Name(e) {
 				return e.sourceString;
 			},
@@ -250,7 +256,7 @@ const App = () => {
 			},
 			quotedident(quote1, name, quote2) {
 				return "\"" + name.toString() + "\"";
-		    },
+			},
 			ident(letter, alnum) {
 				return this.sourceString;
 			},
@@ -275,7 +281,7 @@ const App = () => {
 			},
 			EntityDeclaration(entity, name, as, alias, attributes) {
 				var aliasName = name.nodes();
-				if (alias.numChildren > 0){
+				if (alias.numChildren > 0) {
 					aliasName = alias.nodes()[0];
 				}
 				return {
@@ -326,8 +332,12 @@ const App = () => {
 					return e.edges();
 				}
 			},
-			RefDeclaration(ref, refelement) {
-				return refelement.edges();
+			RefDeclaration(ref, refelement, refName) {
+				const name = refName.numChildren > 0 ? refName.edges() : '';
+				return {
+					name,
+					...refelement.edges()
+				};
 			},
 			RefElement(e) {
 				return e.edges();
@@ -351,6 +361,9 @@ const App = () => {
 					type: 'AttributeRef'
 					//direction: greater
 				};
+			},
+			RefName(as, name) {
+				return name.sourceString;
 			},
 			datatype(e) {
 				return e.edges();
@@ -390,9 +403,9 @@ const App = () => {
 						id: node.name,
 						type: 'custom',
 						data: { title: node.name, color: '#6FB1FC', attributes: node.attributes ? node.attributes : null }, // color wird aktuell nicht benutzt, aber später
-						position: { 
-							x: matchingNode ? matchingNode.position.x : 0, 
-							y: matchingNode ? matchingNode.position.y : i * 75 
+						position: {
+							x: matchingNode ? matchingNode.position.x : 0,
+							y: matchingNode ? matchingNode.position.y : i * 75
 						}
 					}
 				});
@@ -464,9 +477,9 @@ const App = () => {
 			// try setting markers for syntax errors
 			try {
 				const failure = result.shortMessage;
-				const line = parseInt(failure.substring(5,failure.indexOf("col")-2)); 
-				const col = parseInt(failure.substring(failure.indexOf("col")+4, failure.indexOf(":"))); 
-				const message = failure.substring(failure.indexOf(":")+2); 
+				const line = parseInt(failure.substring(5, failure.indexOf("col") - 2));
+				const col = parseInt(failure.substring(failure.indexOf("col") + 4, failure.indexOf(":")));
+				const message = failure.substring(failure.indexOf(":") + 2);
 				console.log("line: " + line);
 				console.log("col: " + col);
 				console.log("message: " + message);
@@ -475,11 +488,11 @@ const App = () => {
 					startLineNumber: line,
 					startColumn: col,
 					endLineNumber: line,
-					endColumn: col+5,
+					endColumn: col + 5,
 					message: message,
 					severity: monacoRef.current.MarkerSeverity.Error,
-				}]) 
-			} catch (err) {}
+				}])
+			} catch (err) { }
 			//set match result
 			setMatchResult(result.shortMessage);
 		}
@@ -516,7 +529,7 @@ const App = () => {
 							language="eric"
 							beforeMount={editorWillMount}
 							onMount={editorOnMount}
-							/>
+						/>
 						{/* Textfeld für die Anzeige des matchResult */}
 						<div style={{ marginTop: '24px' }}>
 							<Input.TextArea

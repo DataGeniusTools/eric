@@ -17,7 +17,7 @@ Model {
 		= Name (datatype)? ("*")?
 
 	RefDeclaration
-		= "Ref" RefElement
+		= "Ref" RefElement (RefName)?
 
 	RefElement
 		= RefEntity
@@ -29,6 +29,9 @@ Model {
 	RefAttribute
 		= Name ("." Name)? ">" Name ("." Name)?
 		
+	RefName
+	    = "as" Name
+
 	Name
 		= quotedident
 		| ident
