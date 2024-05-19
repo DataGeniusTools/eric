@@ -79,6 +79,18 @@ This will create "one to many" connections in ERic's graph based on entities or 
 
 <img src="Ref.png" alt="Ref" width="488" height="186" style="text-align: center;"/>
 
+Edges can be given names using the "as" clause. These appear in the diagram at the connecting lines.
+
+```
+Entity Person
+
+Entity Order
+
+Ref Order > Person as order2person
+```
+
+<img src="Ref2.png" alt="Ref" width="240" height="193" style="text-align: center;"/>
+
 ## Quotes
 
 More complex names containing spaces and other special characters can be enclosed in double quotes.
