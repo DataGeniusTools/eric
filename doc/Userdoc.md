@@ -209,4 +209,9 @@ Entity Person {
 }
 ```
 
+---
+**NOTE**
+
 The full grammar of ERic's domain specific language can be found in [here](../src/Ohm.js).
+
+---
