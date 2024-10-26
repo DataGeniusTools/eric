@@ -1,12 +1,14 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MonacoEditor from '@monaco-editor/react';
-import { Tooltip, Input, Layout, Space, Typography } from 'antd';
+import { Tooltip, Input, Layout, Space, Typography, Button, Tour } from 'antd';
 import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
 import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState, applyNodeChanges } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
 import grammar from './Ohm.js';
 import logo from './logo.png';
+import automaticlayout from './automaticlayout.png';
+import fitview from './fitview.png';
 import SplitPane, { Pane } from 'split-pane-react';
 import 'split-pane-react/esm/themes/default.css';
 import SimpleFloatingEdge from './SimpleFloatingEdge';
@@ -58,7 +60,6 @@ const getLayoutedElements = (nodes, edges, options = {}) => {
 				// and `y` fields.
 				position: { x: node.x, y: node.y },
 			})),
-
 			edges: layoutedGraph.edges,
 		}))
 		.catch(console.error);
@@ -81,7 +82,101 @@ const App = () => {
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
 	const monacoRef = useRef(null);
 	const monacoEditorRef = useRef(null);
+	const [isTourOpen, setIsTourOpen] = useState(false);
+	const [isTourDisabled, setIsTourDisabled] = useState(
+		JSON.parse(localStorage.getItem('disableTour')) || false
+	);
+	const mainWindowTour = useRef(null);
+	const monacoEditorTour = useRef(null);
+	const reactFlowTour = useRef(null);
+	const parseResultTour = useRef(null);
+	const gitLinkTour = useRef(null);
 
+	const tourSteps = [
+		{
+			title: 'Welcome',
+			description: <>
+				Welcome to ERic, an interactive Entity Relationship creator!<br /><br />
+				This tour will help you to understand the main elements of ERic.
+			</>,
+			target: null
+		},
+		{
+			title: 'ER definition language',
+			description: <>
+				Enter here your entity relationship definition in the ERic language.<br /><br />
+				Try it copy the example below into your clipboard and paste it into the code definition window.<br /><br />
+				Entity Customer {'{'}<br />
+				id int *<br />
+				fname string<br />
+				lname string<br />
+				addressId int<br />
+				{'}'}<br /><br />
+
+				Entity Order {'{'}<br />
+				id int *<br />
+				customerId int<br />
+				orderDate date<br />
+				{'}'}<br /><br />
+
+				Entity OrderLine {'{'}<br />
+				position int *<br />
+				orderId int<br />
+				quantiy int<br />
+				articleId int<br />
+				{'}'}<br /><br />
+
+				Entity Address {'{'}<br />
+				id int *<br />
+				zip string<br />
+				street string<br />
+				city string<br />
+				{'}'}<br /><br />
+	
+				Ref Order.customerId > Customer.id<br />
+				Ref OrderLine.orderId > Order.id<br />
+				Ref Customer.addressId > Address.id
+			</>,
+			placement: 'right',
+			target: () => monacoEditorTour.current
+		},
+		{
+			title: 'ER diagram',
+			description: <>
+				Your ER diagram will be shown in this window.<br /><br />
+				In the lower left corner there is a collection of buttons to adjust the diagram.<br /><br />
+				Try the <b>automatic layout button</b> <img src={automaticlayout} alt="automatic layout" style={{ height: '12px' }} /> to arrange your diagram and the <b>fit view button</b> <img src={fitview} alt="fit view" style={{ height: '12px' }} /> afterwards to see the whole diagram<br /><br />
+				Hover your mouse over each button to get a tooltip explaining its function.
+			</>,
+			placement: 'left',
+			target: () => reactFlowTour.current
+		},
+		{
+			title: 'Parse results',
+			description: <>
+				Parsing results will be displayed here.<br /><br />
+				You should have a look to this area when your diagram is empty and check for any parsing errors displayed here.
+			</>,
+			placement: 'right',
+			target: () => parseResultTour.current
+		},
+		{
+			title: 'Github',
+			description: <>
+				Click on this icon to open the ERic Github page.<br /><br />
+				You should get much more help how to use ERic, here a <a href="https://github.com/DataGeniusTools/eric/blob/master/doc/Userdoc.md" target="_blank">direct link to the user manual.</a><br /><br />
+				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js">here</a> as well.
+			</>,
+			//			description: 'Click on this icon to open the ERic Git page and get more help.',
+			placement: 'bottom',
+			target: () => gitLinkTour.current
+		}
+	];
+	useEffect(() => {
+		if (!isTourDisabled && mainWindowTour.current && monacoEditorTour.current && reactFlowTour.current && parseResultTour.current && gitLinkTour.current) {
+			setIsTourOpen(true);
+		}
+	}, [isTourDisabled, mainWindowTour, monacoEditorTour, reactFlowTour, parseResultTour, gitLinkTour]);
 	const editorWillMount = (monaco) => {
 		//this.editor = monaco
 		if (!monaco.languages.getLanguages().some(({ id }) => id === 'eric')) {
@@ -501,19 +596,35 @@ const App = () => {
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
 			<Header>
-				<Space size="middle">
-					<img src={logo} alt="Logo" style={{ height: '32px', verticalAlign: 'middle' }} />
-					<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
-				</Space>
-				<Space style={{ float: 'right' }} >
-					<Link href="https://github.com/treimers/eric" target="_blank">
-						<Tooltip title="go to Github repository">
-							<GithubOutlined style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle' }} />
-						</Tooltip>
-					</Link>
+				<Space size="middle" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<img src={logo} alt="Logo" style={{ height: '32px', verticalAlign: 'middle' }} />
+						<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center' }}>
+						<Button onClick={() => setIsTourOpen(!isTourOpen)}>
+							Tour {isTourOpen ? 'Stop' : 'Start'}
+						</Button>
+						<Button
+							onClick={() => {
+								const newStatus = !isTourDisabled;
+								setIsTourDisabled(newStatus);
+								localStorage.setItem('disableTour', JSON.stringify(newStatus));
+							}}
+						>
+							{isTourDisabled ? 'Enable Tour' : 'Disable Tour'}
+						</Button>
+						<span ref={gitLinkTour} style={{ marginLeft: '16px' }}>
+							<Link href="https://github.com/DataGeniusTools/eric" target="_blank">
+								<Tooltip title="go to Github repository">
+									<GithubOutlined style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle' }} />
+								</Tooltip>
+							</Link>
+						</span>
+					</div>
 				</Space>
 			</Header>
-			<Content style={{ padding: '0px', height: 'calc(100vh - 100px)' }}>
+			<Content ref={mainWindowTour} style={{ padding: '0px', height: 'calc(100vh - 100px)' }}>
 				<SplitPane
 					split='vertical'
 					sizes={splitPaneSizes}
@@ -521,17 +632,19 @@ const App = () => {
 				>
 					<Pane minSize={150} maxSize='50%'>
 						{/* Monaco Editor */}
-						<MonacoEditor
-							height="88%"
-							value={code}
-							options={editorOptions}
-							onChange={handleEditorChange}
-							language="eric"
-							beforeMount={editorWillMount}
-							onMount={editorOnMount}
-						/>
+						<span ref={monacoEditorTour}>
+							<MonacoEditor
+								height="88%"
+								value={code}
+								options={editorOptions}
+								onChange={handleEditorChange}
+								language="eric"
+								beforeMount={editorWillMount}
+								onMount={editorOnMount}
+							/>
+						</span>
 						{/* Textfeld für die Anzeige des matchResult */}
-						<div style={{ marginTop: '24px' }}>
+						<div ref={parseResultTour} style={{ marginTop: '24px' }}>
 							<Input.TextArea
 								value={matchResult ? matchResult.toString() : 'No match result'}
 								placeholder="Match Result"
@@ -542,33 +655,45 @@ const App = () => {
 					</Pane>
 					<Pane>
 						{/* React Flow */}
-						<ReactFlow
-							nodes={nodes}
-							onNodesChange={onNodesChange}
-							edges={edges}
-							onEdgesChange={onEdgesChange}
-							onInit={setRfInstance}
-							//onConnect={onConnect}
-							fitView
-							nodeTypes={nodeTypes}
-							edgeTypes={edgeTypes}
-							connectionMode={ConnectionMode.Loose}
-							style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff', fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif' }}
-						>
-							<Controls position="bottom-right" >
-								<ControlButton title="automatic layout" onClick={() => onLayout({ direction: 'RIGHT' })} >
-									<ForkOutlined />
-								</ControlButton>
-								<ControlButton title="mini map" onClick={toggleMiniMap}>
-									<BorderOuterOutlined />
-								</ControlButton>
-								<DownloadButton />
-							</Controls>
-							{showMiniMap && <MiniMap />}
-						</ReactFlow>
+						<span ref={reactFlowTour}>
+							<ReactFlow
+								nodes={nodes}
+								onNodesChange={onNodesChange}
+								edges={edges}
+								onEdgesChange={onEdgesChange}
+								onInit={setRfInstance}
+								//onConnect={onConnect}
+								fitView
+								nodeTypes={nodeTypes}
+								edgeTypes={edgeTypes}
+								connectionMode={ConnectionMode.Loose}
+								style={{ height: '100%', border: '1px solid #e5e5e5', backgroundColor: '#fff', fontFamily: 'Inter, system-ui, Avenir, Helvetica, Arial, sans-serif' }}
+							>
+								<Controls position="bottom-right" >
+									<ControlButton title="automatic layout" onClick={() => onLayout({ direction: 'RIGHT' })} >
+										<ForkOutlined />
+									</ControlButton>
+									<ControlButton title="mini map" onClick={toggleMiniMap}>
+										<BorderOuterOutlined />
+									</ControlButton>
+									<DownloadButton />
+								</Controls>
+								{showMiniMap && <MiniMap />}
+							</ReactFlow>
+						</span>
 					</Pane>
 				</SplitPane>
 			</Content>
+			<Tour
+				open={isTourOpen}
+				onClose={() => setIsTourOpen(false)}
+				steps={tourSteps}
+				indicatorsRender={(current, total) => (
+					<span>
+						{current + 1} / {total}
+					</span>
+				)}
+			/>
 		</Layout>
 	);
 };
