@@ -165,7 +165,7 @@ const App = () => {
 			description: <>
 				Click on this icon to open the ERic Github page.<br /><br />
 				You should get much more help how to use ERic, here a <a href="https://github.com/DataGeniusTools/eric/blob/master/doc/Userdoc.md" target="_blank">direct link to the user manual.</a><br /><br />
-				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js">here</a> as well.
+				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js" target="_blank">here</a> as well.
 			</>,
 			//			description: 'Click on this icon to open the ERic Git page and get more help.',
 			placement: 'bottom',
