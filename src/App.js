@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MonacoEditor from '@monaco-editor/react';
-import { Tooltip, Input, Layout, Space, Typography, Button, Tour } from 'antd';
-import { GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
+import { Tooltip, Input, Layout, Space, Typography, Button, Tour, Modal, Dropdown, Checkbox } from 'antd';
+import { SettingOutlined, GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
 import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState, applyNodeChanges } from 'react-flow-renderer';
 import 'reactflow/dist/style.css';
@@ -82,16 +82,26 @@ const App = () => {
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
 	const monacoRef = useRef(null);
 	const monacoEditorRef = useRef(null);
+	// Start tour code
+	// known bugs:
+	// 1. Tour starts directly on Enable Tour On Start
+	// 2. Checkbox Disable Tour On Start is not working
 	const [isTourOpen, setIsTourOpen] = useState(false);
 	const [isTourDisabled, setIsTourDisabled] = useState(
 		JSON.parse(localStorage.getItem('disableTour')) || false
 	);
+	useEffect(() => {
+        if (!isTourDisabled) {
+            setIsTourOpen(true);
+        }
+    }, [isTourDisabled]);
 	const mainWindowTour = useRef(null);
 	const monacoEditorTour = useRef(null);
 	const reactFlowTour = useRef(null);
 	const parseResultTour = useRef(null);
 	const gitLinkTour = useRef(null);
-
+	const tourButtonTour = useRef(null);
+	const settingsButtonTour = useRef(null);
 	const tourSteps = [
 		{
 			title: 'Welcome',
@@ -161,22 +171,76 @@ const App = () => {
 			target: () => parseResultTour.current
 		},
 		{
+			title: 'Tour',
+			description: <>
+				You can restart this tour with a click on this button.
+			</>,
+			placement: 'bottom',
+			target: () => tourButtonTour.current
+		},
+		{
+			title: 'Settings',
+			description: <>
+				You can enable or disable the automated tour start here.
+			</>,
+			placement: 'bottom',
+			target: () => settingsButtonTour.current
+		},
+		{
 			title: 'Github',
 			description: <>
 				Click on this icon to open the ERic Github page.<br /><br />
 				You should get much more help how to use ERic, here a <a href="https://github.com/DataGeniusTools/eric/blob/master/doc/Userdoc.md" target="_blank">direct link to the user manual.</a><br /><br />
-				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js" target="_blank">here</a> as well.
+				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js" target="_blank">under this link</a> as well.
 			</>,
-			//			description: 'Click on this icon to open the ERic Git page and get more help.',
 			placement: 'bottom',
 			target: () => gitLinkTour.current
 		}
 	];
-	useEffect(() => {
-		if (!isTourDisabled && mainWindowTour.current && monacoEditorTour.current && reactFlowTour.current && parseResultTour.current && gitLinkTour.current) {
-			setIsTourOpen(true);
+	const handleTourClose = () => {
+		setIsTourOpen(false);
+		if (!isTourDisabled) {
+			Modal.confirm({
+				title: 'Disable Tour on Start?',
+				content: (
+					<Checkbox
+						checked={!isTourDisabled}
+						onChange={(e) => {
+							setIsTourDisabled(!e.target.checked);
+						}}
+					>
+						Disable Tour on Start
+					</Checkbox>
+				),
+				okText: 'Save',
+				cancelText: 'Cancel',
+				onOk: () => {
+					const disableTour = !isTourDisabled;
+					setIsTourDisabled(disableTour);
+					localStorage.setItem('disableTour', JSON.stringify(disableTour));
+				},
+			});
 		}
-	}, [isTourDisabled, mainWindowTour, monacoEditorTour, reactFlowTour, parseResultTour, gitLinkTour]);
+	};
+	const settingsMenuItems = [
+		{
+			key: '1',
+			label: (
+				<Checkbox
+					checked={!isTourDisabled}
+					onChange={(e) => {
+						const disableTour = !e.target.checked;
+						setIsTourDisabled(disableTour);
+						localStorage.setItem('disableTour', JSON.stringify(disableTour));
+					}}
+				>
+					Show Tour on Start
+				</Checkbox>
+			),
+		},
+	];
+	const settingsMenu = { items: settingsMenuItems };
+	// End tour code
 	const editorWillMount = (monaco) => {
 		//this.editor = monaco
 		if (!monaco.languages.getLanguages().some(({ id }) => id === 'eric')) {
@@ -208,26 +272,11 @@ const App = () => {
 		monacoRef.current = monaco;
 		monacoEditorRef.current = editor;
 	}
-
 	const [nodes, setNodes] = useNodesState();
 	const [edges, setEdges, onEdgesChange] = useEdgesState();
 	const [rfInstance, setRfInstance] = useState(null);
-
-	//const { setViewport } = useReactFlow();
-	/*
-	const onConnect = useCallback(
-		(params) =>
-		  setEdges((eds) =>
-			addEdge({ ...params, type: 'floating', markerEnd: { type: MarkerType.Arrow } }, eds)
-		  ),
-		[]
-	  );
-	  */
-
 	const saveToLocalStorage = useCallback(() => {
-		// console.log("saveToLocalStorage");
 		if (rfInstance) {
-			// console.log("go...");
 			// save flow 
 			const flow = rfInstance.toObject();
 			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
@@ -236,7 +285,6 @@ const App = () => {
 			localStorage.setItem(localStoragKeyDSL, dsl);
 		}
 	}, [code, rfInstance]);
-
 	const readFromLocalStorage = useCallback(() => {
 		const restoreFlow = async () => {
 			// read flow
@@ -244,7 +292,6 @@ const App = () => {
 			// read dsl
 			const dsl = localStorage.getItem(localStoragKeyDSL);
 			setCode(dsl);
-
 			if (flow) {
 				//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
 				setNodes(flow.nodes || []);
@@ -273,9 +320,6 @@ const App = () => {
 			const opts = { 'elk.direction': direction, ...elkOptions };
 			const ns = nodes;
 			const es = edges;
-			//const ns = useInitialNodes ? initialNodes : nodes;
-			//const es = useInitialNodes ? initialEdges : edges;
-
 			getLayoutedElements(ns, es, opts).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
 				setNodes(layoutedNodes);
 				setEdges(layoutedEdges);
@@ -484,12 +528,8 @@ const App = () => {
 			monacoRef.current.editor.setModelMarkers(monacoEditorRef.current.getModel(), 'msg', []);
 
 			setMatchResult(semantics(result).toString());
-			//console.log("semNodes");
 			const semNodes = semanticsNodes(result).nodes();
-			//console.log(semNodes);
-			//console.log("semEdges");
 			const semEdges = semanticsEdges(result).edges();
-			//console.log(semEdges);
 			const flowNodes =
 				semNodes.nodes.map((node, i) => {
 					// Find node in existing nodes of the flow/graph (to get the current position because this should stay the same)
@@ -504,8 +544,6 @@ const App = () => {
 						}
 					}
 				});
-			//console.log("flowNodes");
-			//console.log(flowNodes);
 			setNodes(flowNodes);
 			// todo: keep position if nodes already exist
 			const flowEdges =
@@ -540,8 +578,6 @@ const App = () => {
 						type: 'smoothstep' // https://reactflow.dev/examples/edges/edge-types
 					}
 				});
-			//console.log("flowEdges");
-			//console.log(flowEdges);
 			setEdges(flowEdges);
 			// Search for missing entities used in Refs
 			const nodesArray = [];
@@ -602,18 +638,12 @@ const App = () => {
 						<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<Button onClick={() => setIsTourOpen(!isTourOpen)}>
-							Tour {isTourOpen ? 'Stop' : 'Start'}
+						<Button ref={tourButtonTour} type="primary" onClick={() => setIsTourOpen(true)}>
+							Tour
 						</Button>
-						<Button
-							onClick={() => {
-								const newStatus = !isTourDisabled;
-								setIsTourDisabled(newStatus);
-								localStorage.setItem('disableTour', JSON.stringify(newStatus));
-							}}
-						>
-							{isTourDisabled ? 'Enable Tour' : 'Disable Tour'}
-						</Button>
+						<Dropdown menu={settingsMenu} placement="bottomRight">
+							<SettingOutlined ref={settingsButtonTour} style={{ color: '#fff', fontSize: '24px', marginLeft: '16px', cursor: 'pointer' }} />
+						</Dropdown>
 						<span ref={gitLinkTour} style={{ marginLeft: '16px' }}>
 							<Link href="https://github.com/DataGeniusTools/eric" target="_blank">
 								<Tooltip title="go to Github repository">
@@ -643,7 +673,7 @@ const App = () => {
 								onMount={editorOnMount}
 							/>
 						</span>
-						{/* Textfeld für die Anzeige des matchResult */}
+						{/* Textfield with matchResult */}
 						<div ref={parseResultTour} style={{ marginTop: '24px' }}>
 							<Input.TextArea
 								value={matchResult ? matchResult.toString() : 'No match result'}
@@ -662,7 +692,6 @@ const App = () => {
 								edges={edges}
 								onEdgesChange={onEdgesChange}
 								onInit={setRfInstance}
-								//onConnect={onConnect}
 								fitView
 								nodeTypes={nodeTypes}
 								edgeTypes={edgeTypes}
@@ -686,7 +715,7 @@ const App = () => {
 			</Content>
 			<Tour
 				open={isTourOpen}
-				onClose={() => setIsTourOpen(false)}
+				onClose={handleTourClose}
 				steps={tourSteps}
 				indicatorsRender={(current, total) => (
 					<span>
