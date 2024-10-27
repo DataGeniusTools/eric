@@ -83,18 +83,19 @@ const App = () => {
 	const monacoRef = useRef(null);
 	const monacoEditorRef = useRef(null);
 	// Start tour code
-	// known bugs:
-	// 1. Tour starts directly on Enable Tour On Start
-	// 2. Checkbox Disable Tour On Start is not working
 	const [isTourOpen, setIsTourOpen] = useState(false);
 	const [isTourDisabled, setIsTourDisabled] = useState(
 		JSON.parse(localStorage.getItem('disableTour')) || false
 	);
+	const initialRender = useRef(true);
 	useEffect(() => {
-        if (!isTourDisabled) {
-            setIsTourOpen(true);
-        }
-    }, [isTourDisabled]);
+		if (initialRender.current) {
+			initialRender.current = false;
+			if (!isTourDisabled) {
+				setIsTourOpen(true);
+			}
+		}
+	}, [isTourDisabled]);
 	const mainWindowTour = useRef(null);
 	const monacoEditorTour = useRef(null);
 	const reactFlowTour = useRef(null);
@@ -190,8 +191,8 @@ const App = () => {
 			title: 'Github',
 			description: <>
 				Click on this icon to open the ERic Github page.<br /><br />
-				You should get much more help how to use ERic, here a <a href="https://github.com/DataGeniusTools/eric/blob/master/doc/Userdoc.md" target="_blank">direct link to the user manual.</a><br /><br />
-				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js" target="_blank">under this link</a> as well.
+				You should get much more help how to use ERic, here a <a href="https://github.com/DataGeniusTools/eric/blob/master/doc/Userdoc.md" target="_blank" rel="noreferrer">direct link to the user manual.</a><br /><br />
+				On the Github page a detailed description of ERic definition language grammar can be found <a href="https://github.com/DataGeniusTools/eric/blob/master/src/Ohm.js" target="_blank" rel="noreferrer">under this link</a> as well.
 			</>,
 			placement: 'bottom',
 			target: () => gitLinkTour.current
@@ -201,19 +202,12 @@ const App = () => {
 		setIsTourOpen(false);
 		if (!isTourDisabled) {
 			Modal.confirm({
-				title: 'Disable Tour on Start?',
+				title: 'Tour',
 				content: (
-					<Checkbox
-						checked={!isTourDisabled}
-						onChange={(e) => {
-							setIsTourDisabled(!e.target.checked);
-						}}
-					>
-						Disable Tour on Start
-					</Checkbox>
+					<p>Disable Tour on Start?</p>
 				),
-				okText: 'Save',
-				cancelText: 'Cancel',
+				okText: 'Disable',
+				cancelText: 'Keep',
 				onOk: () => {
 					const disableTour = !isTourDisabled;
 					setIsTourDisabled(disableTour);
