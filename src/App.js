@@ -626,26 +626,22 @@ const App = () => {
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
 			<Header>
-				<Space size="middle" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<img src={logo} alt="Logo" style={{ height: '32px', verticalAlign: 'middle' }} />
-						<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
-					</div>
-					<div style={{ display: 'flex', alignItems: 'center' }}>
-						<Button ref={tourButtonTour} type="primary" onClick={() => setIsTourOpen(true)}>
-							Tour
-						</Button>
-						<Dropdown menu={settingsMenu} placement="bottomRight">
-							<SettingOutlined ref={settingsButtonTour} style={{ color: '#fff', fontSize: '24px', marginLeft: '16px', cursor: 'pointer' }} />
-						</Dropdown>
-						<span ref={gitLinkTour} style={{ marginLeft: '16px' }}>
-							<Link href="https://github.com/DataGeniusTools/eric" target="_blank">
-								<Tooltip title="go to Github repository">
-									<GithubOutlined style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle' }} />
-								</Tooltip>
-							</Link>
-						</span>
-					</div>
+				<Space size="middle" >
+					<img src={logo} alt="Logo" style={{ height: '32px', verticalAlign: 'middle' }} />
+					<h1 style={{ color: '#fff', margin: 0, fontFamily: 'Inter', fontSize: '24px', fontWeight: '600' }}>ERic</h1>
+				</Space>
+				<Space size="large" style={{ float: 'right' }}>
+					<Button ref={tourButtonTour} type="primary" onClick={() => setIsTourOpen(true)}>
+						Tour
+					</Button>
+					<Dropdown menu={settingsMenu} placement="bottomRight">
+						<SettingOutlined ref={settingsButtonTour} style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle', cursor: 'pointer' }} />
+					</Dropdown>
+					<Link href="https://github.com/DataGeniusTools/eric" target="_blank" ref={gitLinkTour}>
+						<Tooltip title="go to Github repository">
+							<GithubOutlined style={{ color: '#fff', fontSize: '24px', verticalAlign: 'middle' }} />
+						</Tooltip>
+					</Link>
 				</Space>
 			</Header>
 			<Content ref={mainWindowTour} style={{ padding: '0px', height: 'calc(100vh - 100px)' }}>
