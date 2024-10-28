@@ -118,35 +118,17 @@ const App = () => {
 				Enter here your entity relationship definition in the ERic language.<br /><br />
 				Try it copy the example below into your clipboard and paste it into the code definition window.<br /><br />
 				Entity Customer {'{'}<br />
-				id int *<br />
-				fname string<br />
-				lname string<br />
-				addressId int<br />
-				{'}'}<br /><br />
-
+				&nbsp;&nbsp;id int *<br />
+				&nbsp;&nbsp;fname string<br />
+				&nbsp;&nbsp;lname string<br />
+				&nbsp;&nbsp;addressId int<br />
+				{'}'}<br />
 				Entity Order {'{'}<br />
-				id int *<br />
-				customerId int<br />
-				orderDate date<br />
-				{'}'}<br /><br />
-
-				Entity OrderLine {'{'}<br />
-				position int *<br />
-				orderId int<br />
-				quantiy int<br />
-				articleId int<br />
-				{'}'}<br /><br />
-
-				Entity Address {'{'}<br />
-				id int *<br />
-				zip string<br />
-				street string<br />
-				city string<br />
-				{'}'}<br /><br />
-	
+				&nbsp;&nbsp;id int *<br />
+				&nbsp;&nbsp;customerId int<br />
+				&nbsp;&nbsp;orderDate date<br />
+				{'}'}<br />
 				Ref Order.customerId > Customer.id<br />
-				Ref OrderLine.orderId > Order.id<br />
-				Ref Customer.addressId > Address.id
 			</>,
 			placement: 'right',
 			target: () => monacoEditorTour.current
