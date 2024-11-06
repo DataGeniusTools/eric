@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import MonacoEditor from '@monaco-editor/react';
-import { Tooltip, Input, Layout, Space, Typography, Button, Tour, Modal, Dropdown, Checkbox } from 'antd';
+import { Tooltip, Input, Layout, Space, Typography, Button, Tour, Modal, Dropdown, Checkbox, Tabs } from 'antd';
 import { SettingOutlined, GithubOutlined, ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import * as ohm from 'ohm-js';
 import ReactFlow, { ReactFlowProvider, MiniMap, Controls, ControlButton, ConnectionMode, useReactFlow, useNodesState, useEdgesState, applyNodeChanges } from 'react-flow-renderer';
@@ -78,6 +78,7 @@ function hasDuplicates(array) {
 const App = () => {
 	const { fitView } = useReactFlow();
 	const [code, setCode] = useState(null);
+	const [flow, setFlow] = useState(null);
 	const [matchResult, setMatchResult] = useState(null);
 	const [splitPaneSizes, setSplitPaneSizes] = useState([250, '30%', 'auto']);
 	const monacoRef = useRef(null);
@@ -255,6 +256,7 @@ const App = () => {
 		if (rfInstance) {
 			// save flow 
 			const flow = rfInstance.toObject();
+			setFlow(flow);
 			localStorage.setItem(localStoragKeyFlow, JSON.stringify(flow));
 			// save dsl
 			const dsl = code;
@@ -269,6 +271,7 @@ const App = () => {
 			const dsl = localStorage.getItem(localStoragKeyDSL);
 			setCode(dsl);
 			if (flow) {
+				setFlow(flow);
 				//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
 				setNodes(flow.nodes || []);
 				setEdges(flow.edges || []);
@@ -315,6 +318,25 @@ const App = () => {
 	const toggleMiniMap = () => {
 		setShowMiniMap(!showMiniMap);
 	};
+
+	
+	const handleFlowEditorChange = (newCode, event) => {
+		try {
+			const flow = JSON.parse(newCode);
+			if(flow) {
+				setFlow(flow);
+				//const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+				setNodes(flow.nodes || []);
+				setEdges(flow.edges || []);
+				//setViewport({ x, y, zoom });
+				fitView();
+			}
+		} catch(error) {
+			console.log(error)
+			setMatchResult(error);
+		}
+	}
+
 	const handleEditorChange = (newCode, event) => {
 
 		setCode(newCode);
@@ -605,6 +627,37 @@ const App = () => {
 		}
 	};
 
+	
+	const tabs = [
+		{
+		  key: '1',
+		  label: 'DSL',
+		  children: 
+			<MonacoEditor
+				height="75vh"
+				value={code}
+				options={editorOptions}
+				onChange={handleEditorChange}
+				language="eric"
+				beforeMount={editorWillMount}
+				onMount={editorOnMount}
+			/>
+		},
+		{
+		  key: '2',
+		  label: 'Flow',
+		  children: flow && <MonacoEditor
+							height="75vh"
+							value={JSON.stringify(flow, null, 2)}
+							//options={editorOptions}
+							onChange={handleFlowEditorChange}
+							language="json"
+							//beforeMount={editorWillMount}
+							//onMount={editorOnMount}
+						/>
+		}
+	  ];
+
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
 			<Header>
@@ -634,19 +687,11 @@ const App = () => {
 				>
 					<Pane minSize={150} maxSize='50%'>
 						{/* Monaco Editor */}
-						<span ref={monacoEditorTour}>
-							<MonacoEditor
-								height="88%"
-								value={code}
-								options={editorOptions}
-								onChange={handleEditorChange}
-								language="eric"
-								beforeMount={editorWillMount}
-								onMount={editorOnMount}
-							/>
-						</span>
+						<div ref={monacoEditorTour} style={{ height: '88%'}}>
+							<Tabs defaultActiveKey="1" items={tabs} tabBarStyle={{paddingLeft: '20px'}} />
+						</div>
 						{/* Textfield with matchResult */}
-						<div ref={parseResultTour} style={{ marginTop: '24px' }}>
+						<div ref={parseResultTour} style={{ marginTop: '24px', height: '10%' }}>
 							<Input.TextArea
 								value={matchResult ? matchResult.toString() : 'No match result'}
 								placeholder="Match Result"
