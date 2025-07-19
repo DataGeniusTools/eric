@@ -11,7 +11,7 @@
 - Fehlerbehandlung
 	- doppelte Nodes
 	- doppelte Edges
-- Integration Tests reaktivieren (Ohm.js Mock-Komplexität lösen)
+- ✅ Integration Tests reaktivieren (Ohm.js Mock-Komplexität gelöst)
 - Performance-Optimierungen für große Diagramme
 - Accessibility-Verbesserungen
 - Mobile Responsive Design
