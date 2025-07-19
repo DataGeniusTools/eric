@@ -12,7 +12,7 @@ import ReactFlow, {
 import { ForkOutlined, BorderOuterOutlined } from '@ant-design/icons';
 import 'reactflow/dist/style.css';
 import CustomNode from './CustomNode';
-import SimpleFloatingEdge from '../SimpleFloatingEdge';
+import SimpleFloatingEdge from './SimpleFloatingEdge';
 import DownloadButton from './DownloadButton';
 
 const nodeTypes = {

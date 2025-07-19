@@ -3,7 +3,7 @@
  */
 
 import * as ohm from 'ohm-js';
-import grammar from '../Ohm.js';
+import grammar from './grammar.js';
 
 // Create a single grammar instance to avoid conflicts
 const g = ohm.grammar(grammar);

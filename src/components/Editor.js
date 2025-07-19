@@ -6,7 +6,7 @@ import React from 'react';
 import MonacoEditor from '@monaco-editor/react';
 import { Tabs } from 'antd';
 import { useEditor } from '../hooks/useEditor';
-import { editorOptions } from '../editor-config.js';
+import { editorOptions } from './editor-config.js';
 
 /**
  * Editor component for ERic application

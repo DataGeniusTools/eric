@@ -19,21 +19,39 @@ src/
 │   ├── Toolbar.js       # Application toolbar
 │   ├── Editor.js        # Monaco editor wrapper
 │   ├── DiagramCanvas.js # React Flow canvas wrapper
-│   └── Tour.js          # Tour component
+│   ├── Tour.js          # Tour component
+│   ├── SimpleFloatingEdge.js # Custom edge component
+│   └── editor-config.js # Monaco editor configuration
 ├── hooks/               # Custom React hooks
 │   ├── useTour.js       # Tour state management
 │   └── useEditor.js     # Monaco editor management
 ├── services/            # Business logic services
 │   └── storage.js       # LocalStorage operations
 ├── utils/               # Utility functions
-│   ├── fileHelpers.js   # File operations
+│   ├── edgeHelpers.js   # Edge calculation utilities
 │   ├── layoutHelpers.js # ELK layout operations
-│   └── arrayHelpers.js  # Array manipulation utilities
-├── dsl/                 # DSL parsing
-│   └── parser.js        # Ohm.js DSL parser
+│   ├── arrayHelpers.js  # Array manipulation utilities
+│   ├── fileHelpers.js   # File operations
+│   ├── chatExport.js    # Chat export functionality
+│   └── reportWebVitals.js # Performance monitoring
+├── dsl/                 # DSL parsing and grammar
+│   ├── parser.js        # Ohm.js DSL parser
+│   └── grammar.js       # Ohm.js grammar definition
+├── __tests__/           # Comprehensive test suite
+│   ├── App.test.js      # Main app integration tests
+│   ├── components.test.js # Component unit tests
+│   ├── hooks.test.js    # Custom hook tests
+│   ├── services.test.js # Service layer tests
+│   ├── utils.test.js    # Utility function tests
+│   ├── parser.test.js   # DSL parser tests
+│   ├── integration.test.js # End-to-end workflow tests
+│   └── TEST_SUMMARY.md  # Test documentation
 ├── App.js               # Main application component
-├── Ohm.js               # Ohm.js grammar definition
-└── editor-config.js     # Monaco editor configuration
+├── index.js             # Application entry point
+├── setupTests.js        # Jest test configuration
+├── index.css            # Global styles
+├── App.css              # App-specific styles
+└── Assets (PNG files)   # Application assets
 ```
 
 ### Key Design Principles
@@ -127,10 +145,10 @@ src/__tests__/
 ```
 
 ### Testing Results
-- **✅ 68 Tests Passing**: All core functionality tested
-- **✅ 6 Test Suites**: Comprehensive coverage
-- **✅ 1 Skipped Suite**: Integration tests (mock complexity)
+- **✅ 99 Tests Passing**: All core functionality tested
+- **✅ 7 Test Suites**: Comprehensive coverage
 - **✅ 100% Success Rate**: No failing tests
+- **✅ Integration Tests**: All tests including integration tests passing
 
 ### Testing Principles
 1. **Unit Tests**: Test individual functions and components
@@ -147,7 +165,8 @@ src/__tests__/
 - **React Testing Library**: Component testing ✅
 - **Clean Code**: Readable and maintainable code ✅
 - **Modular Architecture**: Separated concerns and reusable components ✅
-- **Comprehensive Testing**: 68 tests with 100% success rate ✅
+- **Comprehensive Testing**: 99 tests with 100% success rate ✅
+- **Optimized Project Structure**: All files organized in logical directories ✅
 
 ### Build Process
 - **Create React App**: Standard React build process
@@ -212,7 +231,7 @@ Ref Order.customerId > Customer.id
 
 ## 🔧 Configuration
 
-### Editor Configuration (`src/editor-config.js`)
+### Editor Configuration (`src/components/editor-config.js`)
 - **Language Definition**: ERic DSL syntax highlighting
 - **Editor Options**: Monaco editor settings
 - **Keywords**: Auto-completion suggestions

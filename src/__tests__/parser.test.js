@@ -1,5 +1,5 @@
 import * as ohm from 'ohm-js';
-import grammar from '../Ohm.js';
+import grammar from '../dsl/grammar.js';
 
 describe('Ohm.js Parser', () => {
   let g;

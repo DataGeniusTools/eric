@@ -3,7 +3,7 @@
  */
 
 import { useRef, useCallback } from 'react';
-import { editorKeywords, languageDef, configuration } from '../editor-config.js';
+import { editorKeywords, languageDef, configuration } from '../components/editor-config.js';
 
 /**
  * Custom hook for managing Monaco editor functionality
