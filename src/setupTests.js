@@ -4,6 +4,49 @@
 // learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
 
+// Suppress console errors and warnings during tests
+const originalError = console.error;
+const originalWarn = console.warn;
+
+beforeAll(() => {
+  console.error = (...args) => {
+    // Suppress expected errors from tests
+    if (
+      typeof args[0] === 'string' &&
+      (
+        args[0].includes('Error saving project to localStorage') ||
+        args[0].includes('Error loading project from localStorage') ||
+        args[0].includes('Error getting projects from localStorage') ||
+        args[0].includes('Error loading tour preference') ||
+        args[0].includes('Cannot convert undefined or null to object') ||
+        args[0].includes('Function components cannot be given refs')
+      )
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+
+  console.warn = (...args) => {
+    // Suppress expected warnings from tests
+    if (
+      typeof args[0] === 'string' &&
+      (
+        args[0].includes('Function components cannot be given refs') ||
+        args[0].includes('Warning:')
+      )
+    ) {
+      return;
+    }
+    originalWarn.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
+  console.warn = originalWarn;
+});
+
 // Mock React Flow
 jest.mock('react-flow-renderer', () => ({
   ReactFlowProvider: ({ children }) => children,

@@ -29,8 +29,17 @@ Object.defineProperty(global, 'localStorage', {
 });
 
 describe('Storage Services', () => {
+  let originalConsoleError;
+  
   beforeEach(() => {
     jest.clearAllMocks();
+    // Suppress console.error for expected error tests
+    originalConsoleError = console.error;
+    console.error = jest.fn();
+  });
+  
+  afterEach(() => {
+    console.error = originalConsoleError;
   });
 
   describe('saveProjectToBrowser', () => {
