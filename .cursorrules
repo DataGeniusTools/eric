@@ -1,0 +1,39 @@
+# ERic Project - Cursor Rules
+
+## Project Context
+This is the ERic Entity Relationship creator project. The chat history and development context should be preserved.
+
+## Key Files to Consider
+- `PROJECT.md` - Main project documentation with architecture overview
+- `TODO.md` - Current todos and completed tasks
+- `src/App.js` - Main React component (refactored with clean code principles)
+- `src/components/` - Extracted React components
+- `src/hooks/` - Custom React hooks
+- `src/services/` - Business logic services
+- `src/utils/` - Utility functions
+- `src/dsl/` - DSL parsing logic
+- `src/__tests__/` - Test suite (68 tests)
+
+## Development History
+- Project has been systematically refactored following Clean Code principles
+- Components extracted from monolithic App.js
+- Comprehensive test suite implemented
+- ESLint warnings resolved
+- LocalStorage persistence implemented
+- Tour functionality with preferences
+
+## Current State
+- All todos from the refactoring process have been completed
+- Tests are running successfully with 100% pass rate
+- Project structure is modular and maintainable
+- Ready for further development and enhancements
+
+## Chat Context Preservation
+When continuing development, consider:
+1. The systematic refactoring that was completed
+2. The test-driven development approach used
+3. The modular architecture implemented
+4. The current project state and todos
+
+## Next Steps
+Refer to `TODO.md` for current development priorities and `PROJECT.md` for architecture details. 

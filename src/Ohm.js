@@ -1,4 +1,4 @@
-module.exports = `
+const grammar = `
 Model {
 	Statements
 	  = Statement*
@@ -58,4 +58,6 @@ Model {
 
 	// add our comments to white spaces known to Ohm
 	space += comment
-}`
+}`;
+
+export default grammar;

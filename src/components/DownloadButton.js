@@ -1,5 +1,5 @@
 import React from 'react';
-import { ControlButton, useReactFlow, getRectOfNodes, getTransformForBounds } from 'react-flow-renderer';
+import { ControlButton, useReactFlow, getRectOfNodes, getTransformForBounds } from 'reactflow';
 import { toPng, toSvg } from 'html-to-image';
 import { IconSvg, IconPng } from '@tabler/icons-react';
 

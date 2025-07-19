@@ -79,17 +79,4 @@ export function getEdgeParams(source, target) {
   };
 }
 
-/**
- * Checks if an array has duplicate aliases
- * @param {Array} array - Array of objects with alias property
- * @returns {string} - Returns the duplicate alias or empty string if no duplicates
- */
-export function hasDuplicates(array) {
-  for (let i = 0; i < array.length; i++) {
-    for (let j = i + 1; j < array.length; j++) {
-      if (array[i].alias === array[j].alias)
-        return array[i].alias;
-    }
-  }
-  return "";
-}
+

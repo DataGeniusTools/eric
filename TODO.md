@@ -7,10 +7,14 @@
 - Export und Import von DSL+Flow ermöglichen
 - Gruppierungen für Nodes
 - Farben für Nodes z.B. über die Gruppen
-- Notizen/Post It‘s
+- Notizen/Post It's
 - Fehlerbehandlung
 	- doppelte Nodes
 	- doppelte Edges
+- Integration Tests reaktivieren (Ohm.js Mock-Komplexität lösen)
+- Performance-Optimierungen für große Diagramme
+- Accessibility-Verbesserungen
+- Mobile Responsive Design
 
 # Dones
 
@@ -18,3 +22,10 @@
 - \* für PK anstatt [pk]
 - Prüfen: Aliasse bei Referenzen – kann man dann nur diese verwenden oder auch den Bezeichner ?
 - Kommentare/Texte auf Edges
+- Modularisierung der App.js in separate Komponenten
+- Umfassende Test-Suite mit 68 Tests
+- ESLint-Warnungen behoben
+- React Flow Zoom-Verhalten korrigiert
+- DSL-Parser Fehler behoben
+- LocalStorage Persistierung implementiert
+- Tour-Funktionalität mit Persistierung

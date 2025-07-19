@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { Handle, useUpdateNodeInternals } from "react-flow-renderer"
+import { Handle, useUpdateNodeInternals } from "reactflow"
 
 export const CustomHandle = props => {
   const updateNodeInternals = useUpdateNodeInternals()

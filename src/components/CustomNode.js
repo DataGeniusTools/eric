@@ -1,11 +1,16 @@
 import React from 'react';
-import { Handle, Position } from 'react-flow-renderer';
+import { Handle, Position } from 'reactflow';
 import { NumberOutlined, KeyOutlined, ClockCircleOutlined, FontSizeOutlined} from '@ant-design/icons';
 import { CustomHandle } from "./CustomHandle";
 
 const CustomNode = ({ data }) => {
+  // Ensure data exists and has required properties
+  if (!data || !data.title) {
+    return null;
+  }
+  
   return (
-    <div className="custom-node" style={{ color: 'rgb(15, 23, 42)', border: '1px solid #ddd', borderRadius: '4px', padding: '0px', minWidth: '200px', minHeight: '20px', background: '#fff' }}>
+    <div className="custom-node" style={{ color: 'rgb(15, 23, 42)', border: '1px solid #ddd', borderRadius: '4px', padding: '0px', minWidth: '200px', width: '200px', minHeight: '20px', background: '#fff' }}>
       <div className="title" style={{ fontWeight: '600', backgroundColor: '#eee', textAlign: 'left', marginBottom: '0px', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px', position: 'relative' }}>
         <Handle type="source" position={Position.Left} id={`${data.title}-entity-left`} style={{ background: '#000' }} />
         {data.title}
@@ -16,10 +21,10 @@ const CustomNode = ({ data }) => {
               type="target"
             />
       </div>
-      {data.attributes && data.attributes.length > 0 && (
+      {data.attributes && Array.isArray(data.attributes) && data.attributes.length > 0 && (
         <div className="content" > {/*style={{ overflowY: 'auto' }}*/}
-          {data.attributes.map((attribute, index) => (
-              <div key={index} style={{ verticalAlign: 'middle', display: 'flex', position: 'relative', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px'}}>
+          {data.attributes.filter(attr => attr && attr.name).map((attribute, index) => (
+              <div key={index} style={{ verticalAlign: 'middle', display: 'flex', position: 'relative', paddingLeft: '10px', paddingRight: '10px', paddingTop: '5px', paddingBottom: '5px', minWidth: '180px', width: '180px'}}>
                 <Handle type="source" position={Position.Left} id={`${data.title}-source-${attribute.name}`} style={{ background: '#ddd' }} />
                 <div style={{marginRight: '8px'}}>
                   {(attribute.datatype === 'int' || attribute.datatype === 'double') ? <NumberOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : (attribute.datatype === 'date' ? <ClockCircleOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> : <FontSizeOutlined style={{ fontSize: '10px', color: '#4a638d' }} /> ) }

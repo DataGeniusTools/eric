@@ -9,7 +9,7 @@ You can find a demo environment always running the current stable version at <a 
 ---
 **NOTE**
 
-This is our first version and constantly under development.
+This is a stable version with comprehensive testing and modular architecture.
 
 ---
 
