@@ -24,6 +24,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:no-watch": "react-scripts test --watchAll=false --forceExit",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:ci": "react-scripts test --coverage --watchAll=false --ci",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
