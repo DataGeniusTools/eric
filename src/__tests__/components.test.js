@@ -72,11 +72,15 @@ Object.defineProperty(document, 'querySelector', {
 
 jest.mock('antd', () => ({
   Space: ({ children }) => <div data-testid="space">{children}</div>,
-  Button: ({ children, onClick, type, ref }) => (
-    <button onClick={onClick} type={type} ref={ref} data-testid="button">
-      {children}
-    </button>
-  ),
+  Button: ({ children, onClick, type, ...props }) => {
+    // Extract ref from props and handle it properly
+    const { ref, ...restProps } = props;
+    return (
+      <button onClick={onClick} type={type} ref={ref} data-testid="button" {...restProps}>
+        {children}
+      </button>
+    );
+  },
   Dropdown: ({ children, menu, placement }) => (
     <div data-testid="dropdown" data-placement={placement}>
       {children}
@@ -115,7 +119,10 @@ jest.mock('antd', () => ({
 }));
 
 jest.mock('@ant-design/icons', () => ({
-  SettingOutlined: ({ style, ref }) => <div ref={ref} style={style} data-testid="setting-icon">Settings</div>,
+  SettingOutlined: ({ style, ...props }) => {
+    const { ref, ...restProps } = props;
+    return <div ref={ref} style={style} data-testid="setting-icon" {...restProps}>Settings</div>;
+  },
   GithubOutlined: ({ style }) => <div style={style} data-testid="github-icon">Github</div>,
   ForkOutlined: () => <div data-testid="fork-icon">Fork</div>,
   BorderOuterOutlined: () => <div data-testid="border-icon">Border</div>,

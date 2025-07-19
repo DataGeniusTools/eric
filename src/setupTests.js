@@ -33,7 +33,9 @@ beforeAll(() => {
       typeof args[0] === 'string' &&
       (
         args[0].includes('Function components cannot be given refs') ||
-        args[0].includes('Warning:')
+        args[0].includes('Warning:') ||
+        args[0].includes('Button: `ref` is not a prop') ||
+        args[0].includes('ref` is not a prop')
       )
     ) {
       return;
