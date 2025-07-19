@@ -80,9 +80,9 @@ const App = () => {
   const onNodesChange = useCallback(
     (changes) => {
       setNodes((nds) => applyNodeChanges(changes, nds));
-      // Don't save to localStorage on every node change to prevent layout issues
+      saveToLocalStorage();
     }, 
-    [setNodes]
+    [setNodes,saveToLocalStorage]
   );
 
   /**
