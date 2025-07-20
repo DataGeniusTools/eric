@@ -71,6 +71,15 @@ const App = () => {
       setEdges(savedFlow.edges || []);
       // Delay fitView to ensure nodes are rendered
       setTimeout(() => fitView(), 100);
+      parseDSL(savedDsl);
+      const result = parseDSL(savedDsl);
+      if (result.success) {
+        editor.clearEditorMarkers();
+        const toStringSemantics = createToStringSemantics();
+        setMatchResult(toStringSemantics(result.matchResult).toString());
+      } else {
+        setMatchResult(result.error);
+      }
     }
   }, [setNodes, setEdges, fitView]);
 
