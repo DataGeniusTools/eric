@@ -81,7 +81,7 @@ const App = () => {
         setMatchResult(result.error);
       }
     }
-  }, [setNodes, setEdges, fitView]);
+  }, [setNodes, setEdges, fitView, editor]);
 
   /**
    * Handles node changes and saves to localStorage
